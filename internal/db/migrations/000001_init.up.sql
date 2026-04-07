@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS server_roles (
     server_id UUID NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
     name VARCHAR(50) NOT NULL,
     color VARCHAR(7) DEFAULT '#99AAB5',
-    permissions JSONB DEFAULT '[]',
+    permissions TEXT[] DEFAULT ARRAY[]::TEXT[],
     position INT DEFAULT 0,
     is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),

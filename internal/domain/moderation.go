@@ -64,6 +64,7 @@ type ModerationRequest struct {
 type ModerationResult struct {
 	Allowed    bool
 	Violations []Violation
+	Fallback   bool
 }
 
 type Violation struct {

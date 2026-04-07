@@ -23,6 +23,7 @@ var (
 	ErrMemberIsBanned  = errors.New("user is banned from this server")
 	ErrMemberIsMuted   = errors.New("user is muted in this server")
 	ErrCannotBanOwner  = errors.New("cannot ban server owner")
+	ErrCannotMuteOwner = errors.New("cannot mute server owner")
 	ErrCannotKickOwner = errors.New("cannot kick server owner")
 )
 

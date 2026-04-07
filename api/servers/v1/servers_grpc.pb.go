@@ -20,24 +20,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServersService_CreateServer_FullMethodName      = "/servers.ServersService/CreateServer"
-	ServersService_GetServer_FullMethodName         = "/servers.ServersService/GetServer"
-	ServersService_UpdateServer_FullMethodName      = "/servers.ServersService/UpdateServer"
-	ServersService_DeleteServer_FullMethodName      = "/servers.ServersService/DeleteServer"
-	ServersService_AddMember_FullMethodName         = "/servers.ServersService/AddMember"
-	ServersService_RemoveMember_FullMethodName      = "/servers.ServersService/RemoveMember"
-	ServersService_IsMember_FullMethodName          = "/servers.ServersService/IsMember"
-	ServersService_ListMembers_FullMethodName       = "/servers.ServersService/ListMembers"
-	ServersService_CreateRole_FullMethodName        = "/servers.ServersService/CreateRole"
-	ServersService_UpdateRole_FullMethodName        = "/servers.ServersService/UpdateRole"
-	ServersService_DeleteRole_FullMethodName        = "/servers.ServersService/DeleteRole"
-	ServersService_AssignRole_FullMethodName        = "/servers.ServersService/AssignRole"
-	ServersService_RemoveRole_FullMethodName        = "/servers.ServersService/RemoveRole"
-	ServersService_CreateServerChat_FullMethodName  = "/servers.ServersService/CreateServerChat"
-	ServersService_ListServerChats_FullMethodName   = "/servers.ServersService/ListServerChats"
-	ServersService_DeleteServerChat_FullMethodName  = "/servers.ServersService/DeleteServerChat"
-	ServersService_GetUploadIconURL_FullMethodName  = "/servers.ServersService/GetUploadIconURL"
-	ServersService_ConfirmIconUpload_FullMethodName = "/servers.ServersService/ConfirmIconUpload"
+	ServersService_CreateServer_FullMethodName           = "/servers.ServersService/CreateServer"
+	ServersService_GetServer_FullMethodName              = "/servers.ServersService/GetServer"
+	ServersService_UpdateServer_FullMethodName           = "/servers.ServersService/UpdateServer"
+	ServersService_DeleteServer_FullMethodName           = "/servers.ServersService/DeleteServer"
+	ServersService_ListUserServers_FullMethodName        = "/servers.ServersService/ListUserServers"
+	ServersService_GetServerConfig_FullMethodName        = "/servers.ServersService/GetServerConfig"
+	ServersService_UpdateServerConfig_FullMethodName     = "/servers.ServersService/UpdateServerConfig"
+	ServersService_GetModerationConfig_FullMethodName    = "/servers.ServersService/GetModerationConfig"
+	ServersService_UpdateModerationConfig_FullMethodName = "/servers.ServersService/UpdateModerationConfig"
+	ServersService_AddMember_FullMethodName              = "/servers.ServersService/AddMember"
+	ServersService_RemoveMember_FullMethodName           = "/servers.ServersService/RemoveMember"
+	ServersService_GetMember_FullMethodName              = "/servers.ServersService/GetMember"
+	ServersService_ListMembers_FullMethodName            = "/servers.ServersService/ListMembers"
+	ServersService_BanMember_FullMethodName              = "/servers.ServersService/BanMember"
+	ServersService_UnbanMember_FullMethodName            = "/servers.ServersService/UnbanMember"
+	ServersService_MuteMember_FullMethodName             = "/servers.ServersService/MuteMember"
+	ServersService_UnmuteMember_FullMethodName           = "/servers.ServersService/UnmuteMember"
+	ServersService_CreateRole_FullMethodName             = "/servers.ServersService/CreateRole"
+	ServersService_UpdateRole_FullMethodName             = "/servers.ServersService/UpdateRole"
+	ServersService_DeleteRole_FullMethodName             = "/servers.ServersService/DeleteRole"
+	ServersService_AssignRole_FullMethodName             = "/servers.ServersService/AssignRole"
+	ServersService_RemoveRole_FullMethodName             = "/servers.ServersService/RemoveRole"
+	ServersService_GetMemberRoles_FullMethodName         = "/servers.ServersService/GetMemberRoles"
+	ServersService_CreateServerChat_FullMethodName       = "/servers.ServersService/CreateServerChat"
+	ServersService_ListServerChats_FullMethodName        = "/servers.ServersService/ListServerChats"
+	ServersService_DeleteServerChat_FullMethodName       = "/servers.ServersService/DeleteServerChat"
 )
 
 // ServersServiceClient is the client API for ServersService service.
@@ -49,24 +57,32 @@ type ServersServiceClient interface {
 	GetServer(ctx context.Context, in *GetServerRequest, opts ...grpc.CallOption) (*ServerDTO, error)
 	UpdateServer(ctx context.Context, in *UpdateServerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteServer(ctx context.Context, in *DeleteServerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ListUserServers(ctx context.Context, in *ListUserServersRequest, opts ...grpc.CallOption) (*ListUserServersResponse, error)
+	// ─── Configs ───────────────────────────────────────────────────────────────
+	GetServerConfig(ctx context.Context, in *GetServerConfigRequest, opts ...grpc.CallOption) (*ServerConfigDTO, error)
+	UpdateServerConfig(ctx context.Context, in *UpdateServerConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetModerationConfig(ctx context.Context, in *GetModerationConfigRequest, opts ...grpc.CallOption) (*ModerationConfigDTO, error)
+	UpdateModerationConfig(ctx context.Context, in *UpdateModerationConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ─── Members ───────────────────────────────────────────────────────────────
 	AddMember(ctx context.Context, in *AddMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveMember(ctx context.Context, in *RemoveMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	IsMember(ctx context.Context, in *IsMemberRequest, opts ...grpc.CallOption) (*IsMemberResponse, error)
+	GetMember(ctx context.Context, in *GetMemberRequest, opts ...grpc.CallOption) (*MemberDTO, error)
 	ListMembers(ctx context.Context, in *ListMembersRequest, opts ...grpc.CallOption) (*ListMembersResponse, error)
+	BanMember(ctx context.Context, in *BanMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnbanMember(ctx context.Context, in *UnbanMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ─── Roles ─────────────────────────────────────────────────────────────────
 	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*RoleDTO, error)
 	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	RemoveRole(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetMemberRoles(ctx context.Context, in *GetMemberRolesRequest, opts ...grpc.CallOption) (*GetMemberRolesResponse, error)
 	// ─── Server Chats ──────────────────────────────────────────────────────────
 	CreateServerChat(ctx context.Context, in *CreateServerChatRequest, opts ...grpc.CallOption) (*ServerChatDTO, error)
 	ListServerChats(ctx context.Context, in *ListServerChatsRequest, opts ...grpc.CallOption) (*ListServerChatsResponse, error)
 	DeleteServerChat(ctx context.Context, in *DeleteServerChatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// ─── Icon (через File Service) ─────────────────────────────────────────────
-	GetUploadIconURL(ctx context.Context, in *GetUploadIconURLRequest, opts ...grpc.CallOption) (*GetUploadIconURLResponse, error)
-	ConfirmIconUpload(ctx context.Context, in *ConfirmIconUploadRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type serversServiceClient struct {
@@ -117,6 +133,56 @@ func (c *serversServiceClient) DeleteServer(ctx context.Context, in *DeleteServe
 	return out, nil
 }
 
+func (c *serversServiceClient) ListUserServers(ctx context.Context, in *ListUserServersRequest, opts ...grpc.CallOption) (*ListUserServersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListUserServersResponse)
+	err := c.cc.Invoke(ctx, ServersService_ListUserServers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) GetServerConfig(ctx context.Context, in *GetServerConfigRequest, opts ...grpc.CallOption) (*ServerConfigDTO, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ServerConfigDTO)
+	err := c.cc.Invoke(ctx, ServersService_GetServerConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) UpdateServerConfig(ctx context.Context, in *UpdateServerConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_UpdateServerConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) GetModerationConfig(ctx context.Context, in *GetModerationConfigRequest, opts ...grpc.CallOption) (*ModerationConfigDTO, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModerationConfigDTO)
+	err := c.cc.Invoke(ctx, ServersService_GetModerationConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) UpdateModerationConfig(ctx context.Context, in *UpdateModerationConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_UpdateModerationConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serversServiceClient) AddMember(ctx context.Context, in *AddMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -137,10 +203,10 @@ func (c *serversServiceClient) RemoveMember(ctx context.Context, in *RemoveMembe
 	return out, nil
 }
 
-func (c *serversServiceClient) IsMember(ctx context.Context, in *IsMemberRequest, opts ...grpc.CallOption) (*IsMemberResponse, error) {
+func (c *serversServiceClient) GetMember(ctx context.Context, in *GetMemberRequest, opts ...grpc.CallOption) (*MemberDTO, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(IsMemberResponse)
-	err := c.cc.Invoke(ctx, ServersService_IsMember_FullMethodName, in, out, cOpts...)
+	out := new(MemberDTO)
+	err := c.cc.Invoke(ctx, ServersService_GetMember_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,6 +217,46 @@ func (c *serversServiceClient) ListMembers(ctx context.Context, in *ListMembersR
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListMembersResponse)
 	err := c.cc.Invoke(ctx, ServersService_ListMembers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) BanMember(ctx context.Context, in *BanMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_BanMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) UnbanMember(ctx context.Context, in *UnbanMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_UnbanMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_MuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serversServiceClient) UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ServersService_UnmuteMember_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +313,16 @@ func (c *serversServiceClient) RemoveRole(ctx context.Context, in *RemoveRoleReq
 	return out, nil
 }
 
+func (c *serversServiceClient) GetMemberRoles(ctx context.Context, in *GetMemberRolesRequest, opts ...grpc.CallOption) (*GetMemberRolesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMemberRolesResponse)
+	err := c.cc.Invoke(ctx, ServersService_GetMemberRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serversServiceClient) CreateServerChat(ctx context.Context, in *CreateServerChatRequest, opts ...grpc.CallOption) (*ServerChatDTO, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ServerChatDTO)
@@ -237,26 +353,6 @@ func (c *serversServiceClient) DeleteServerChat(ctx context.Context, in *DeleteS
 	return out, nil
 }
 
-func (c *serversServiceClient) GetUploadIconURL(ctx context.Context, in *GetUploadIconURLRequest, opts ...grpc.CallOption) (*GetUploadIconURLResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUploadIconURLResponse)
-	err := c.cc.Invoke(ctx, ServersService_GetUploadIconURL_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serversServiceClient) ConfirmIconUpload(ctx context.Context, in *ConfirmIconUploadRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ServersService_ConfirmIconUpload_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ServersServiceServer is the server API for ServersService service.
 // All implementations must embed UnimplementedServersServiceServer
 // for forward compatibility.
@@ -266,24 +362,32 @@ type ServersServiceServer interface {
 	GetServer(context.Context, *GetServerRequest) (*ServerDTO, error)
 	UpdateServer(context.Context, *UpdateServerRequest) (*emptypb.Empty, error)
 	DeleteServer(context.Context, *DeleteServerRequest) (*emptypb.Empty, error)
+	ListUserServers(context.Context, *ListUserServersRequest) (*ListUserServersResponse, error)
+	// ─── Configs ───────────────────────────────────────────────────────────────
+	GetServerConfig(context.Context, *GetServerConfigRequest) (*ServerConfigDTO, error)
+	UpdateServerConfig(context.Context, *UpdateServerConfigRequest) (*emptypb.Empty, error)
+	GetModerationConfig(context.Context, *GetModerationConfigRequest) (*ModerationConfigDTO, error)
+	UpdateModerationConfig(context.Context, *UpdateModerationConfigRequest) (*emptypb.Empty, error)
 	// ─── Members ───────────────────────────────────────────────────────────────
 	AddMember(context.Context, *AddMemberRequest) (*emptypb.Empty, error)
 	RemoveMember(context.Context, *RemoveMemberRequest) (*emptypb.Empty, error)
-	IsMember(context.Context, *IsMemberRequest) (*IsMemberResponse, error)
+	GetMember(context.Context, *GetMemberRequest) (*MemberDTO, error)
 	ListMembers(context.Context, *ListMembersRequest) (*ListMembersResponse, error)
+	BanMember(context.Context, *BanMemberRequest) (*emptypb.Empty, error)
+	UnbanMember(context.Context, *UnbanMemberRequest) (*emptypb.Empty, error)
+	MuteMember(context.Context, *MuteMemberRequest) (*emptypb.Empty, error)
+	UnmuteMember(context.Context, *UnmuteMemberRequest) (*emptypb.Empty, error)
 	// ─── Roles ─────────────────────────────────────────────────────────────────
 	CreateRole(context.Context, *CreateRoleRequest) (*RoleDTO, error)
 	UpdateRole(context.Context, *UpdateRoleRequest) (*emptypb.Empty, error)
 	DeleteRole(context.Context, *DeleteRoleRequest) (*emptypb.Empty, error)
 	AssignRole(context.Context, *AssignRoleRequest) (*emptypb.Empty, error)
 	RemoveRole(context.Context, *RemoveRoleRequest) (*emptypb.Empty, error)
+	GetMemberRoles(context.Context, *GetMemberRolesRequest) (*GetMemberRolesResponse, error)
 	// ─── Server Chats ──────────────────────────────────────────────────────────
 	CreateServerChat(context.Context, *CreateServerChatRequest) (*ServerChatDTO, error)
 	ListServerChats(context.Context, *ListServerChatsRequest) (*ListServerChatsResponse, error)
 	DeleteServerChat(context.Context, *DeleteServerChatRequest) (*emptypb.Empty, error)
-	// ─── Icon (через File Service) ─────────────────────────────────────────────
-	GetUploadIconURL(context.Context, *GetUploadIconURLRequest) (*GetUploadIconURLResponse, error)
-	ConfirmIconUpload(context.Context, *ConfirmIconUploadRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServersServiceServer()
 }
 
@@ -306,17 +410,44 @@ func (UnimplementedServersServiceServer) UpdateServer(context.Context, *UpdateSe
 func (UnimplementedServersServiceServer) DeleteServer(context.Context, *DeleteServerRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteServer not implemented")
 }
+func (UnimplementedServersServiceServer) ListUserServers(context.Context, *ListUserServersRequest) (*ListUserServersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListUserServers not implemented")
+}
+func (UnimplementedServersServiceServer) GetServerConfig(context.Context, *GetServerConfigRequest) (*ServerConfigDTO, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetServerConfig not implemented")
+}
+func (UnimplementedServersServiceServer) UpdateServerConfig(context.Context, *UpdateServerConfigRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateServerConfig not implemented")
+}
+func (UnimplementedServersServiceServer) GetModerationConfig(context.Context, *GetModerationConfigRequest) (*ModerationConfigDTO, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetModerationConfig not implemented")
+}
+func (UnimplementedServersServiceServer) UpdateModerationConfig(context.Context, *UpdateModerationConfigRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateModerationConfig not implemented")
+}
 func (UnimplementedServersServiceServer) AddMember(context.Context, *AddMemberRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddMember not implemented")
 }
 func (UnimplementedServersServiceServer) RemoveMember(context.Context, *RemoveMemberRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveMember not implemented")
 }
-func (UnimplementedServersServiceServer) IsMember(context.Context, *IsMemberRequest) (*IsMemberResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method IsMember not implemented")
+func (UnimplementedServersServiceServer) GetMember(context.Context, *GetMemberRequest) (*MemberDTO, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMember not implemented")
 }
 func (UnimplementedServersServiceServer) ListMembers(context.Context, *ListMembersRequest) (*ListMembersResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMembers not implemented")
+}
+func (UnimplementedServersServiceServer) BanMember(context.Context, *BanMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method BanMember not implemented")
+}
+func (UnimplementedServersServiceServer) UnbanMember(context.Context, *UnbanMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnbanMember not implemented")
+}
+func (UnimplementedServersServiceServer) MuteMember(context.Context, *MuteMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method MuteMember not implemented")
+}
+func (UnimplementedServersServiceServer) UnmuteMember(context.Context, *UnmuteMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnmuteMember not implemented")
 }
 func (UnimplementedServersServiceServer) CreateRole(context.Context, *CreateRoleRequest) (*RoleDTO, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateRole not implemented")
@@ -333,6 +464,9 @@ func (UnimplementedServersServiceServer) AssignRole(context.Context, *AssignRole
 func (UnimplementedServersServiceServer) RemoveRole(context.Context, *RemoveRoleRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveRole not implemented")
 }
+func (UnimplementedServersServiceServer) GetMemberRoles(context.Context, *GetMemberRolesRequest) (*GetMemberRolesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMemberRoles not implemented")
+}
 func (UnimplementedServersServiceServer) CreateServerChat(context.Context, *CreateServerChatRequest) (*ServerChatDTO, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateServerChat not implemented")
 }
@@ -341,12 +475,6 @@ func (UnimplementedServersServiceServer) ListServerChats(context.Context, *ListS
 }
 func (UnimplementedServersServiceServer) DeleteServerChat(context.Context, *DeleteServerChatRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteServerChat not implemented")
-}
-func (UnimplementedServersServiceServer) GetUploadIconURL(context.Context, *GetUploadIconURLRequest) (*GetUploadIconURLResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetUploadIconURL not implemented")
-}
-func (UnimplementedServersServiceServer) ConfirmIconUpload(context.Context, *ConfirmIconUploadRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ConfirmIconUpload not implemented")
 }
 func (UnimplementedServersServiceServer) mustEmbedUnimplementedServersServiceServer() {}
 func (UnimplementedServersServiceServer) testEmbeddedByValue()                        {}
@@ -441,6 +569,96 @@ func _ServersService_DeleteServer_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServersService_ListUserServers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUserServersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).ListUserServers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_ListUserServers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).ListUserServers(ctx, req.(*ListUserServersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_GetServerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServerConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).GetServerConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_GetServerConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).GetServerConfig(ctx, req.(*GetServerConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_UpdateServerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateServerConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).UpdateServerConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_UpdateServerConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).UpdateServerConfig(ctx, req.(*UpdateServerConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_GetModerationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModerationConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).GetModerationConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_GetModerationConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).GetModerationConfig(ctx, req.(*GetModerationConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_UpdateModerationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateModerationConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).UpdateModerationConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_UpdateModerationConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).UpdateModerationConfig(ctx, req.(*UpdateModerationConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServersService_AddMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMemberRequest)
 	if err := dec(in); err != nil {
@@ -477,20 +695,20 @@ func _ServersService_RemoveMember_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServersService_IsMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IsMemberRequest)
+func _ServersService_GetMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMemberRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServersServiceServer).IsMember(ctx, in)
+		return srv.(ServersServiceServer).GetMember(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServersService_IsMember_FullMethodName,
+		FullMethod: ServersService_GetMember_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServersServiceServer).IsMember(ctx, req.(*IsMemberRequest))
+		return srv.(ServersServiceServer).GetMember(ctx, req.(*GetMemberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -509,6 +727,78 @@ func _ServersService_ListMembers_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServersServiceServer).ListMembers(ctx, req.(*ListMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_BanMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BanMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).BanMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_BanMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).BanMember(ctx, req.(*BanMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_UnbanMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbanMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).UnbanMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_UnbanMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).UnbanMember(ctx, req.(*UnbanMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_MuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).MuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_MuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).MuteMember(ctx, req.(*MuteMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServersService_UnmuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnmuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).UnmuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_UnmuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).UnmuteMember(ctx, req.(*UnmuteMemberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -603,6 +893,24 @@ func _ServersService_RemoveRole_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServersService_GetMemberRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMemberRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServersServiceServer).GetMemberRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServersService_GetMemberRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServersServiceServer).GetMemberRoles(ctx, req.(*GetMemberRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServersService_CreateServerChat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateServerChatRequest)
 	if err := dec(in); err != nil {
@@ -657,42 +965,6 @@ func _ServersService_DeleteServerChat_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServersService_GetUploadIconURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUploadIconURLRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServersServiceServer).GetUploadIconURL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServersService_GetUploadIconURL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServersServiceServer).GetUploadIconURL(ctx, req.(*GetUploadIconURLRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServersService_ConfirmIconUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConfirmIconUploadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServersServiceServer).ConfirmIconUpload(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServersService_ConfirmIconUpload_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServersServiceServer).ConfirmIconUpload(ctx, req.(*ConfirmIconUploadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ServersService_ServiceDesc is the grpc.ServiceDesc for ServersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -717,6 +989,26 @@ var ServersService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServersService_DeleteServer_Handler,
 		},
 		{
+			MethodName: "ListUserServers",
+			Handler:    _ServersService_ListUserServers_Handler,
+		},
+		{
+			MethodName: "GetServerConfig",
+			Handler:    _ServersService_GetServerConfig_Handler,
+		},
+		{
+			MethodName: "UpdateServerConfig",
+			Handler:    _ServersService_UpdateServerConfig_Handler,
+		},
+		{
+			MethodName: "GetModerationConfig",
+			Handler:    _ServersService_GetModerationConfig_Handler,
+		},
+		{
+			MethodName: "UpdateModerationConfig",
+			Handler:    _ServersService_UpdateModerationConfig_Handler,
+		},
+		{
 			MethodName: "AddMember",
 			Handler:    _ServersService_AddMember_Handler,
 		},
@@ -725,12 +1017,28 @@ var ServersService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServersService_RemoveMember_Handler,
 		},
 		{
-			MethodName: "IsMember",
-			Handler:    _ServersService_IsMember_Handler,
+			MethodName: "GetMember",
+			Handler:    _ServersService_GetMember_Handler,
 		},
 		{
 			MethodName: "ListMembers",
 			Handler:    _ServersService_ListMembers_Handler,
+		},
+		{
+			MethodName: "BanMember",
+			Handler:    _ServersService_BanMember_Handler,
+		},
+		{
+			MethodName: "UnbanMember",
+			Handler:    _ServersService_UnbanMember_Handler,
+		},
+		{
+			MethodName: "MuteMember",
+			Handler:    _ServersService_MuteMember_Handler,
+		},
+		{
+			MethodName: "UnmuteMember",
+			Handler:    _ServersService_UnmuteMember_Handler,
 		},
 		{
 			MethodName: "CreateRole",
@@ -753,6 +1061,10 @@ var ServersService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServersService_RemoveRole_Handler,
 		},
 		{
+			MethodName: "GetMemberRoles",
+			Handler:    _ServersService_GetMemberRoles_Handler,
+		},
+		{
 			MethodName: "CreateServerChat",
 			Handler:    _ServersService_CreateServerChat_Handler,
 		},
@@ -763,14 +1075,6 @@ var ServersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteServerChat",
 			Handler:    _ServersService_DeleteServerChat_Handler,
-		},
-		{
-			MethodName: "GetUploadIconURL",
-			Handler:    _ServersService_GetUploadIconURL_Handler,
-		},
-		{
-			MethodName: "ConfirmIconUpload",
-			Handler:    _ServersService_ConfirmIconUpload_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

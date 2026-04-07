@@ -24,18 +24,14 @@ const (
 )
 
 type ServerDTO struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	OwnerId     string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	Settings    *ServerSettings        `protobuf:"bytes,5,opt,name=settings,proto3" json:"settings,omitempty"`
-	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	IsDeleted   bool                   `protobuf:"varint,8,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`
-	// Иконка загружается отдельно через File Service
-	IconUrl       *string `protobuf:"bytes,9,opt,name=icon_url,json=iconUrl,proto3,oneof" json:"icon_url,omitempty"`
-	HasIcon       *bool   `protobuf:"varint,10,opt,name=has_icon,json=hasIcon,proto3,oneof" json:"has_icon,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	IsDeleted     bool                   `protobuf:"varint,7,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,13 +94,6 @@ func (x *ServerDTO) GetOwnerId() string {
 	return ""
 }
 
-func (x *ServerDTO) GetSettings() *ServerSettings {
-	if x != nil {
-		return x.Settings
-	}
-	return nil
-}
-
 func (x *ServerDTO) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -126,101 +115,18 @@ func (x *ServerDTO) GetIsDeleted() bool {
 	return false
 }
 
-func (x *ServerDTO) GetIconUrl() string {
-	if x != nil && x.IconUrl != nil {
-		return *x.IconUrl
-	}
-	return ""
-}
-
-func (x *ServerDTO) GetHasIcon() bool {
-	if x != nil && x.HasIcon != nil {
-		return *x.HasIcon
-	}
-	return false
-}
-
-type ServerSettings struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	MaxMembers            int32                  `protobuf:"varint,1,opt,name=max_members,json=maxMembers,proto3" json:"max_members,omitempty"`
-	AllowMemberInvite     bool                   `protobuf:"varint,2,opt,name=allow_member_invite,json=allowMemberInvite,proto3" json:"allow_member_invite,omitempty"`
-	AutoModerationEnabled bool                   `protobuf:"varint,3,opt,name=auto_moderation_enabled,json=autoModerationEnabled,proto3" json:"auto_moderation_enabled,omitempty"`
-	MaxMessageLength      int32                  `protobuf:"varint,4,opt,name=max_message_length,json=maxMessageLength,proto3" json:"max_message_length,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
-}
-
-func (x *ServerSettings) Reset() {
-	*x = ServerSettings{}
-	mi := &file_servers_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ServerSettings) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ServerSettings) ProtoMessage() {}
-
-func (x *ServerSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ServerSettings.ProtoReflect.Descriptor instead.
-func (*ServerSettings) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *ServerSettings) GetMaxMembers() int32 {
-	if x != nil {
-		return x.MaxMembers
-	}
-	return 0
-}
-
-func (x *ServerSettings) GetAllowMemberInvite() bool {
-	if x != nil {
-		return x.AllowMemberInvite
-	}
-	return false
-}
-
-func (x *ServerSettings) GetAutoModerationEnabled() bool {
-	if x != nil {
-		return x.AutoModerationEnabled
-	}
-	return false
-}
-
-func (x *ServerSettings) GetMaxMessageLength() int32 {
-	if x != nil {
-		return x.MaxMessageLength
-	}
-	return 0
-}
-
 type CreateServerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description   *string                `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	OwnerId       string                 `protobuf:"bytes,3,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	Settings      *ServerSettings        `protobuf:"bytes,4,opt,name=settings,proto3,oneof" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateServerRequest) Reset() {
 	*x = CreateServerRequest{}
-	mi := &file_servers_proto_msgTypes[2]
+	mi := &file_servers_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -232,7 +138,7 @@ func (x *CreateServerRequest) String() string {
 func (*CreateServerRequest) ProtoMessage() {}
 
 func (x *CreateServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[2]
+	mi := &file_servers_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -245,7 +151,7 @@ func (x *CreateServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServerRequest.ProtoReflect.Descriptor instead.
 func (*CreateServerRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{2}
+	return file_servers_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateServerRequest) GetName() string {
@@ -269,13 +175,6 @@ func (x *CreateServerRequest) GetOwnerId() string {
 	return ""
 }
 
-func (x *CreateServerRequest) GetSettings() *ServerSettings {
-	if x != nil {
-		return x.Settings
-	}
-	return nil
-}
-
 type CreateServerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
@@ -286,7 +185,7 @@ type CreateServerResponse struct {
 
 func (x *CreateServerResponse) Reset() {
 	*x = CreateServerResponse{}
-	mi := &file_servers_proto_msgTypes[3]
+	mi := &file_servers_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +197,7 @@ func (x *CreateServerResponse) String() string {
 func (*CreateServerResponse) ProtoMessage() {}
 
 func (x *CreateServerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[3]
+	mi := &file_servers_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +210,7 @@ func (x *CreateServerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServerResponse.ProtoReflect.Descriptor instead.
 func (*CreateServerResponse) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{3}
+	return file_servers_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateServerResponse) GetServerId() string {
@@ -331,14 +230,14 @@ func (x *CreateServerResponse) GetCreatedAt() *timestamppb.Timestamp {
 type GetServerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	RequesterId   string                 `protobuf:"bytes,2,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"` // Для проверки прав доступа
+	RequesterId   string                 `protobuf:"bytes,2,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetServerRequest) Reset() {
 	*x = GetServerRequest{}
-	mi := &file_servers_proto_msgTypes[4]
+	mi := &file_servers_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -350,7 +249,7 @@ func (x *GetServerRequest) String() string {
 func (*GetServerRequest) ProtoMessage() {}
 
 func (x *GetServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[4]
+	mi := &file_servers_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +262,7 @@ func (x *GetServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServerRequest.ProtoReflect.Descriptor instead.
 func (*GetServerRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{4}
+	return file_servers_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetServerRequest) GetServerId() string {
@@ -386,14 +285,13 @@ type UpdateServerRequest struct {
 	UpdaterId     string                 `protobuf:"bytes,2,opt,name=updater_id,json=updaterId,proto3" json:"updater_id,omitempty"`
 	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Description   *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Settings      *ServerSettings        `protobuf:"bytes,5,opt,name=settings,proto3,oneof" json:"settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateServerRequest) Reset() {
 	*x = UpdateServerRequest{}
-	mi := &file_servers_proto_msgTypes[5]
+	mi := &file_servers_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -405,7 +303,7 @@ func (x *UpdateServerRequest) String() string {
 func (*UpdateServerRequest) ProtoMessage() {}
 
 func (x *UpdateServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[5]
+	mi := &file_servers_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -418,7 +316,7 @@ func (x *UpdateServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateServerRequest.ProtoReflect.Descriptor instead.
 func (*UpdateServerRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{5}
+	return file_servers_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateServerRequest) GetServerId() string {
@@ -449,13 +347,6 @@ func (x *UpdateServerRequest) GetDescription() string {
 	return ""
 }
 
-func (x *UpdateServerRequest) GetSettings() *ServerSettings {
-	if x != nil {
-		return x.Settings
-	}
-	return nil
-}
-
 type DeleteServerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
@@ -466,7 +357,7 @@ type DeleteServerRequest struct {
 
 func (x *DeleteServerRequest) Reset() {
 	*x = DeleteServerRequest{}
-	mi := &file_servers_proto_msgTypes[6]
+	mi := &file_servers_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -478,7 +369,7 @@ func (x *DeleteServerRequest) String() string {
 func (*DeleteServerRequest) ProtoMessage() {}
 
 func (x *DeleteServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[6]
+	mi := &file_servers_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -491,7 +382,7 @@ func (x *DeleteServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteServerRequest.ProtoReflect.Descriptor instead.
 func (*DeleteServerRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{6}
+	return file_servers_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteServerRequest) GetServerId() string {
@@ -508,254 +399,30 @@ func (x *DeleteServerRequest) GetDeleterId() string {
 	return ""
 }
 
-type AddMemberRequest struct {
+type ListUserServersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AddedBy       string                 `protobuf:"bytes,3,opt,name=added_by,json=addedBy,proto3" json:"added_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AddMemberRequest) Reset() {
-	*x = AddMemberRequest{}
-	mi := &file_servers_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AddMemberRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddMemberRequest) ProtoMessage() {}
-
-func (x *AddMemberRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddMemberRequest.ProtoReflect.Descriptor instead.
-func (*AddMemberRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *AddMemberRequest) GetServerId() string {
-	if x != nil {
-		return x.ServerId
-	}
-	return ""
-}
-
-func (x *AddMemberRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *AddMemberRequest) GetAddedBy() string {
-	if x != nil {
-		return x.AddedBy
-	}
-	return ""
-}
-
-type RemoveMemberRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	RemovedBy     string                 `protobuf:"bytes,3,opt,name=removed_by,json=removedBy,proto3" json:"removed_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RemoveMemberRequest) Reset() {
-	*x = RemoveMemberRequest{}
-	mi := &file_servers_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RemoveMemberRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RemoveMemberRequest) ProtoMessage() {}
-
-func (x *RemoveMemberRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RemoveMemberRequest.ProtoReflect.Descriptor instead.
-func (*RemoveMemberRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *RemoveMemberRequest) GetServerId() string {
-	if x != nil {
-		return x.ServerId
-	}
-	return ""
-}
-
-func (x *RemoveMemberRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *RemoveMemberRequest) GetRemovedBy() string {
-	if x != nil {
-		return x.RemovedBy
-	}
-	return ""
-}
-
-type IsMemberRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IsMemberRequest) Reset() {
-	*x = IsMemberRequest{}
-	mi := &file_servers_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IsMemberRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IsMemberRequest) ProtoMessage() {}
-
-func (x *IsMemberRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IsMemberRequest.ProtoReflect.Descriptor instead.
-func (*IsMemberRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *IsMemberRequest) GetServerId() string {
-	if x != nil {
-		return x.ServerId
-	}
-	return ""
-}
-
-func (x *IsMemberRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type IsMemberResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsMember      bool                   `protobuf:"varint,1,opt,name=is_member,json=isMember,proto3" json:"is_member,omitempty"`
-	RoleIds       []string               `protobuf:"bytes,2,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"` // ID ролей участника
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IsMemberResponse) Reset() {
-	*x = IsMemberResponse{}
-	mi := &file_servers_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IsMemberResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IsMemberResponse) ProtoMessage() {}
-
-func (x *IsMemberResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IsMemberResponse.ProtoReflect.Descriptor instead.
-func (*IsMemberResponse) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *IsMemberResponse) GetIsMember() bool {
-	if x != nil {
-		return x.IsMember
-	}
-	return false
-}
-
-func (x *IsMemberResponse) GetRoleIds() []string {
-	if x != nil {
-		return x.RoleIds
-	}
-	return nil
-}
-
-type ListMembersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListMembersRequest) Reset() {
-	*x = ListMembersRequest{}
-	mi := &file_servers_proto_msgTypes[11]
+func (x *ListUserServersRequest) Reset() {
+	*x = ListUserServersRequest{}
+	mi := &file_servers_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListMembersRequest) String() string {
+func (x *ListUserServersRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListMembersRequest) ProtoMessage() {}
+func (*ListUserServersRequest) ProtoMessage() {}
 
-func (x *ListMembersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[11]
+func (x *ListUserServersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,54 +433,385 @@ func (x *ListMembersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListMembersRequest.ProtoReflect.Descriptor instead.
-func (*ListMembersRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{11}
+// Deprecated: Use ListUserServersRequest.ProtoReflect.Descriptor instead.
+func (*ListUserServersRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListMembersRequest) GetServerId() string {
+func (x *ListUserServersRequest) GetUserId() string {
 	if x != nil {
-		return x.ServerId
+		return x.UserId
 	}
 	return ""
 }
 
-func (x *ListMembersRequest) GetLimit() int32 {
+func (x *ListUserServersRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *ListMembersRequest) GetOffset() int32 {
+func (x *ListUserServersRequest) GetOffset() int32 {
 	if x != nil {
 		return x.Offset
 	}
 	return 0
 }
 
-type ListMembersResponse struct {
+type ListUserServersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Members       []*MemberDTO           `protobuf:"bytes,1,rep,name=members,proto3" json:"members,omitempty"`
-	HasMore       bool                   `protobuf:"varint,2,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	Servers       []*ServerDTO           `protobuf:"bytes,1,rep,name=servers,proto3" json:"servers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListMembersResponse) Reset() {
-	*x = ListMembersResponse{}
+func (x *ListUserServersResponse) Reset() {
+	*x = ListUserServersResponse{}
+	mi := &file_servers_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListUserServersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListUserServersResponse) ProtoMessage() {}
+
+func (x *ListUserServersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListUserServersResponse.ProtoReflect.Descriptor instead.
+func (*ListUserServersResponse) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListUserServersResponse) GetServers() []*ServerDTO {
+	if x != nil {
+		return x.Servers
+	}
+	return nil
+}
+
+type ServerConfigDTO struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	ServerId                string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	MaxMembers              int32                  `protobuf:"varint,2,opt,name=max_members,json=maxMembers,proto3" json:"max_members,omitempty"`
+	MaxChannels             int32                  `protobuf:"varint,3,opt,name=max_channels,json=maxChannels,proto3" json:"max_channels,omitempty"`
+	DefaultNotificationMode string                 `protobuf:"bytes,4,opt,name=default_notification_mode,json=defaultNotificationMode,proto3" json:"default_notification_mode,omitempty"`
+	ModerationEnabled       bool                   `protobuf:"varint,5,opt,name=moderation_enabled,json=moderationEnabled,proto3" json:"moderation_enabled,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *ServerConfigDTO) Reset() {
+	*x = ServerConfigDTO{}
+	mi := &file_servers_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ServerConfigDTO) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerConfigDTO) ProtoMessage() {}
+
+func (x *ServerConfigDTO) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerConfigDTO.ProtoReflect.Descriptor instead.
+func (*ServerConfigDTO) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ServerConfigDTO) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *ServerConfigDTO) GetMaxMembers() int32 {
+	if x != nil {
+		return x.MaxMembers
+	}
+	return 0
+}
+
+func (x *ServerConfigDTO) GetMaxChannels() int32 {
+	if x != nil {
+		return x.MaxChannels
+	}
+	return 0
+}
+
+func (x *ServerConfigDTO) GetDefaultNotificationMode() string {
+	if x != nil {
+		return x.DefaultNotificationMode
+	}
+	return ""
+}
+
+func (x *ServerConfigDTO) GetModerationEnabled() bool {
+	if x != nil {
+		return x.ModerationEnabled
+	}
+	return false
+}
+
+type GetServerConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetServerConfigRequest) Reset() {
+	*x = GetServerConfigRequest{}
+	mi := &file_servers_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetServerConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetServerConfigRequest) ProtoMessage() {}
+
+func (x *GetServerConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetServerConfigRequest.ProtoReflect.Descriptor instead.
+func (*GetServerConfigRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetServerConfigRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+type UpdateServerConfigRequest struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	ServerId                string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UpdaterId               string                 `protobuf:"bytes,2,opt,name=updater_id,json=updaterId,proto3" json:"updater_id,omitempty"`
+	MaxMembers              *int32                 `protobuf:"varint,3,opt,name=max_members,json=maxMembers,proto3,oneof" json:"max_members,omitempty"`
+	MaxChannels             *int32                 `protobuf:"varint,4,opt,name=max_channels,json=maxChannels,proto3,oneof" json:"max_channels,omitempty"`
+	DefaultNotificationMode *string                `protobuf:"bytes,5,opt,name=default_notification_mode,json=defaultNotificationMode,proto3,oneof" json:"default_notification_mode,omitempty"`
+	ModerationEnabled       *bool                  `protobuf:"varint,6,opt,name=moderation_enabled,json=moderationEnabled,proto3,oneof" json:"moderation_enabled,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *UpdateServerConfigRequest) Reset() {
+	*x = UpdateServerConfigRequest{}
+	mi := &file_servers_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateServerConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateServerConfigRequest) ProtoMessage() {}
+
+func (x *UpdateServerConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateServerConfigRequest.ProtoReflect.Descriptor instead.
+func (*UpdateServerConfigRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateServerConfigRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *UpdateServerConfigRequest) GetUpdaterId() string {
+	if x != nil {
+		return x.UpdaterId
+	}
+	return ""
+}
+
+func (x *UpdateServerConfigRequest) GetMaxMembers() int32 {
+	if x != nil && x.MaxMembers != nil {
+		return *x.MaxMembers
+	}
+	return 0
+}
+
+func (x *UpdateServerConfigRequest) GetMaxChannels() int32 {
+	if x != nil && x.MaxChannels != nil {
+		return *x.MaxChannels
+	}
+	return 0
+}
+
+func (x *UpdateServerConfigRequest) GetDefaultNotificationMode() string {
+	if x != nil && x.DefaultNotificationMode != nil {
+		return *x.DefaultNotificationMode
+	}
+	return ""
+}
+
+func (x *UpdateServerConfigRequest) GetModerationEnabled() bool {
+	if x != nil && x.ModerationEnabled != nil {
+		return *x.ModerationEnabled
+	}
+	return false
+}
+
+type ModerationConfigDTO struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	ServerId               string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	ProfanityFilterAction  string                 `protobuf:"bytes,2,opt,name=profanity_filter_action,json=profanityFilterAction,proto3" json:"profanity_filter_action,omitempty"`
+	ToxicityFilterAction   string                 `protobuf:"bytes,3,opt,name=toxicity_filter_action,json=toxicityFilterAction,proto3" json:"toxicity_filter_action,omitempty"`
+	NsfwTextFilterAction   string                 `protobuf:"bytes,4,opt,name=nsfw_text_filter_action,json=nsfwTextFilterAction,proto3" json:"nsfw_text_filter_action,omitempty"`
+	PoliticalFilterAction  string                 `protobuf:"bytes,5,opt,name=political_filter_action,json=politicalFilterAction,proto3" json:"political_filter_action,omitempty"`
+	HateSpeechFilterAction string                 `protobuf:"bytes,6,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3" json:"hate_speech_filter_action,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ModerationConfigDTO) Reset() {
+	*x = ModerationConfigDTO{}
+	mi := &file_servers_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModerationConfigDTO) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModerationConfigDTO) ProtoMessage() {}
+
+func (x *ModerationConfigDTO) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModerationConfigDTO.ProtoReflect.Descriptor instead.
+func (*ModerationConfigDTO) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ModerationConfigDTO) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *ModerationConfigDTO) GetProfanityFilterAction() string {
+	if x != nil {
+		return x.ProfanityFilterAction
+	}
+	return ""
+}
+
+func (x *ModerationConfigDTO) GetToxicityFilterAction() string {
+	if x != nil {
+		return x.ToxicityFilterAction
+	}
+	return ""
+}
+
+func (x *ModerationConfigDTO) GetNsfwTextFilterAction() string {
+	if x != nil {
+		return x.NsfwTextFilterAction
+	}
+	return ""
+}
+
+func (x *ModerationConfigDTO) GetPoliticalFilterAction() string {
+	if x != nil {
+		return x.PoliticalFilterAction
+	}
+	return ""
+}
+
+func (x *ModerationConfigDTO) GetHateSpeechFilterAction() string {
+	if x != nil {
+		return x.HateSpeechFilterAction
+	}
+	return ""
+}
+
+type GetModerationConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetModerationConfigRequest) Reset() {
+	*x = GetModerationConfigRequest{}
 	mi := &file_servers_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListMembersResponse) String() string {
+func (x *GetModerationConfigRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListMembersResponse) ProtoMessage() {}
+func (*GetModerationConfigRequest) ProtoMessage() {}
 
-func (x *ListMembersResponse) ProtoReflect() protoreflect.Message {
+func (x *GetModerationConfigRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_servers_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -825,23 +823,108 @@ func (x *ListMembersResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListMembersResponse.ProtoReflect.Descriptor instead.
-func (*ListMembersResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetModerationConfigRequest.ProtoReflect.Descriptor instead.
+func (*GetModerationConfigRequest) Descriptor() ([]byte, []int) {
 	return file_servers_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ListMembersResponse) GetMembers() []*MemberDTO {
+func (x *GetModerationConfigRequest) GetServerId() string {
 	if x != nil {
-		return x.Members
+		return x.ServerId
 	}
-	return nil
+	return ""
 }
 
-func (x *ListMembersResponse) GetHasMore() bool {
+type UpdateModerationConfigRequest struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	ServerId               string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UpdaterId              string                 `protobuf:"bytes,2,opt,name=updater_id,json=updaterId,proto3" json:"updater_id,omitempty"`
+	ProfanityFilterAction  *string                `protobuf:"bytes,3,opt,name=profanity_filter_action,json=profanityFilterAction,proto3,oneof" json:"profanity_filter_action,omitempty"`
+	ToxicityFilterAction   *string                `protobuf:"bytes,4,opt,name=toxicity_filter_action,json=toxicityFilterAction,proto3,oneof" json:"toxicity_filter_action,omitempty"`
+	NsfwTextFilterAction   *string                `protobuf:"bytes,5,opt,name=nsfw_text_filter_action,json=nsfwTextFilterAction,proto3,oneof" json:"nsfw_text_filter_action,omitempty"`
+	PoliticalFilterAction  *string                `protobuf:"bytes,6,opt,name=political_filter_action,json=politicalFilterAction,proto3,oneof" json:"political_filter_action,omitempty"`
+	HateSpeechFilterAction *string                `protobuf:"bytes,7,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3,oneof" json:"hate_speech_filter_action,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *UpdateModerationConfigRequest) Reset() {
+	*x = UpdateModerationConfigRequest{}
+	mi := &file_servers_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModerationConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModerationConfigRequest) ProtoMessage() {}
+
+func (x *UpdateModerationConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[13]
 	if x != nil {
-		return x.HasMore
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return false
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModerationConfigRequest.ProtoReflect.Descriptor instead.
+func (*UpdateModerationConfigRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *UpdateModerationConfigRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetUpdaterId() string {
+	if x != nil {
+		return x.UpdaterId
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetProfanityFilterAction() string {
+	if x != nil && x.ProfanityFilterAction != nil {
+		return *x.ProfanityFilterAction
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetToxicityFilterAction() string {
+	if x != nil && x.ToxicityFilterAction != nil {
+		return *x.ToxicityFilterAction
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetNsfwTextFilterAction() string {
+	if x != nil && x.NsfwTextFilterAction != nil {
+		return *x.NsfwTextFilterAction
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetPoliticalFilterAction() string {
+	if x != nil && x.PoliticalFilterAction != nil {
+		return *x.PoliticalFilterAction
+	}
+	return ""
+}
+
+func (x *UpdateModerationConfigRequest) GetHateSpeechFilterAction() string {
+	if x != nil && x.HateSpeechFilterAction != nil {
+		return *x.HateSpeechFilterAction
+	}
+	return ""
 }
 
 type MemberDTO struct {
@@ -859,7 +942,7 @@ type MemberDTO struct {
 
 func (x *MemberDTO) Reset() {
 	*x = MemberDTO{}
-	mi := &file_servers_proto_msgTypes[13]
+	mi := &file_servers_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -871,7 +954,7 @@ func (x *MemberDTO) String() string {
 func (*MemberDTO) ProtoMessage() {}
 
 func (x *MemberDTO) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[13]
+	mi := &file_servers_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -884,7 +967,7 @@ func (x *MemberDTO) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MemberDTO.ProtoReflect.Descriptor instead.
 func (*MemberDTO) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{13}
+	return file_servers_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *MemberDTO) GetUserId() string {
@@ -936,32 +1019,30 @@ func (x *MemberDTO) GetMutedUntil() *timestamppb.Timestamp {
 	return nil
 }
 
-type CreateRoleRequest struct {
+type AddMemberRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	CreatorId     string                 `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Color         *string                `protobuf:"bytes,4,opt,name=color,proto3,oneof" json:"color,omitempty"` // #RRGGBB
-	Permissions   []string               `protobuf:"bytes,5,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AddedBy       string                 `protobuf:"bytes,3,opt,name=added_by,json=addedBy,proto3" json:"added_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateRoleRequest) Reset() {
-	*x = CreateRoleRequest{}
-	mi := &file_servers_proto_msgTypes[14]
+func (x *AddMemberRequest) Reset() {
+	*x = AddMemberRequest{}
+	mi := &file_servers_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateRoleRequest) String() string {
+func (x *AddMemberRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateRoleRequest) ProtoMessage() {}
+func (*AddMemberRequest) ProtoMessage() {}
 
-func (x *CreateRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[14]
+func (x *AddMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -972,44 +1053,494 @@ func (x *CreateRoleRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateRoleRequest.ProtoReflect.Descriptor instead.
-func (*CreateRoleRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{14}
+// Deprecated: Use AddMemberRequest.ProtoReflect.Descriptor instead.
+func (*AddMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *CreateRoleRequest) GetServerId() string {
+func (x *AddMemberRequest) GetServerId() string {
 	if x != nil {
 		return x.ServerId
 	}
 	return ""
 }
 
-func (x *CreateRoleRequest) GetCreatorId() string {
+func (x *AddMemberRequest) GetUserId() string {
 	if x != nil {
-		return x.CreatorId
+		return x.UserId
 	}
 	return ""
 }
 
-func (x *CreateRoleRequest) GetName() string {
+func (x *AddMemberRequest) GetAddedBy() string {
 	if x != nil {
-		return x.Name
+		return x.AddedBy
 	}
 	return ""
 }
 
-func (x *CreateRoleRequest) GetColor() string {
-	if x != nil && x.Color != nil {
-		return *x.Color
+type RemoveMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	RemovedBy     string                 `protobuf:"bytes,3,opt,name=removed_by,json=removedBy,proto3" json:"removed_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveMemberRequest) Reset() {
+	*x = RemoveMemberRequest{}
+	mi := &file_servers_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveMemberRequest) ProtoMessage() {}
+
+func (x *RemoveMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveMemberRequest.ProtoReflect.Descriptor instead.
+func (*RemoveMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *RemoveMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
 	}
 	return ""
 }
 
-func (x *CreateRoleRequest) GetPermissions() []string {
+func (x *RemoveMemberRequest) GetUserId() string {
 	if x != nil {
-		return x.Permissions
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RemoveMemberRequest) GetRemovedBy() string {
+	if x != nil {
+		return x.RemovedBy
+	}
+	return ""
+}
+
+type GetMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMemberRequest) Reset() {
+	*x = GetMemberRequest{}
+	mi := &file_servers_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMemberRequest) ProtoMessage() {}
+
+func (x *GetMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMemberRequest.ProtoReflect.Descriptor instead.
+func (*GetMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *GetMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type ListMembersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMembersRequest) Reset() {
+	*x = ListMembersRequest{}
+	mi := &file_servers_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMembersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMembersRequest) ProtoMessage() {}
+
+func (x *ListMembersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMembersRequest.ProtoReflect.Descriptor instead.
+func (*ListMembersRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListMembersRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *ListMembersRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListMembersRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ListMembersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Members       []*MemberDTO           `protobuf:"bytes,1,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMembersResponse) Reset() {
+	*x = ListMembersResponse{}
+	mi := &file_servers_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMembersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMembersResponse) ProtoMessage() {}
+
+func (x *ListMembersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMembersResponse.ProtoReflect.Descriptor instead.
+func (*ListMembersResponse) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListMembersResponse) GetMembers() []*MemberDTO {
+	if x != nil {
+		return x.Members
 	}
 	return nil
+}
+
+type BanMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	BannedBy      string                 `protobuf:"bytes,3,opt,name=banned_by,json=bannedBy,proto3" json:"banned_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BanMemberRequest) Reset() {
+	*x = BanMemberRequest{}
+	mi := &file_servers_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BanMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BanMemberRequest) ProtoMessage() {}
+
+func (x *BanMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BanMemberRequest.ProtoReflect.Descriptor instead.
+func (*BanMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *BanMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *BanMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *BanMemberRequest) GetBannedBy() string {
+	if x != nil {
+		return x.BannedBy
+	}
+	return ""
+}
+
+type UnbanMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UnbannedBy    string                 `protobuf:"bytes,3,opt,name=unbanned_by,json=unbannedBy,proto3" json:"unbanned_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnbanMemberRequest) Reset() {
+	*x = UnbanMemberRequest{}
+	mi := &file_servers_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnbanMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnbanMemberRequest) ProtoMessage() {}
+
+func (x *UnbanMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnbanMemberRequest.ProtoReflect.Descriptor instead.
+func (*UnbanMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *UnbanMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *UnbanMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnbanMemberRequest) GetUnbannedBy() string {
+	if x != nil {
+		return x.UnbannedBy
+	}
+	return ""
+}
+
+type MuteMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	MutedBy       string                 `protobuf:"bytes,3,opt,name=muted_by,json=mutedBy,proto3" json:"muted_by,omitempty"`
+	DurationHours int64                  `protobuf:"varint,4,opt,name=duration_hours,json=durationHours,proto3" json:"duration_hours,omitempty"` // 0 = навсегда
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MuteMemberRequest) Reset() {
+	*x = MuteMemberRequest{}
+	mi := &file_servers_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteMemberRequest) ProtoMessage() {}
+
+func (x *MuteMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteMemberRequest.ProtoReflect.Descriptor instead.
+func (*MuteMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *MuteMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetMutedBy() string {
+	if x != nil {
+		return x.MutedBy
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetDurationHours() int64 {
+	if x != nil {
+		return x.DurationHours
+	}
+	return 0
+}
+
+type UnmuteMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UnmutedBy     string                 `protobuf:"bytes,3,opt,name=unmuted_by,json=unmutedBy,proto3" json:"unmuted_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmuteMemberRequest) Reset() {
+	*x = UnmuteMemberRequest{}
+	mi := &file_servers_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmuteMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmuteMemberRequest) ProtoMessage() {}
+
+func (x *UnmuteMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmuteMemberRequest.ProtoReflect.Descriptor instead.
+func (*UnmuteMemberRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *UnmuteMemberRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *UnmuteMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnmuteMemberRequest) GetUnmutedBy() string {
+	if x != nil {
+		return x.UnmutedBy
+	}
+	return ""
 }
 
 type RoleDTO struct {
@@ -1027,7 +1558,7 @@ type RoleDTO struct {
 
 func (x *RoleDTO) Reset() {
 	*x = RoleDTO{}
-	mi := &file_servers_proto_msgTypes[15]
+	mi := &file_servers_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1039,7 +1570,7 @@ func (x *RoleDTO) String() string {
 func (*RoleDTO) ProtoMessage() {}
 
 func (x *RoleDTO) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[15]
+	mi := &file_servers_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1052,7 +1583,7 @@ func (x *RoleDTO) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleDTO.ProtoReflect.Descriptor instead.
 func (*RoleDTO) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{15}
+	return file_servers_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RoleDTO) GetId() string {
@@ -1104,6 +1635,66 @@ func (x *RoleDTO) GetIsDefault() bool {
 	return false
 }
 
+type CreateRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CreatorId     string                 `protobuf:"bytes,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateRoleRequest) Reset() {
+	*x = CreateRoleRequest{}
+	mi := &file_servers_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRoleRequest) ProtoMessage() {}
+
+func (x *CreateRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRoleRequest.ProtoReflect.Descriptor instead.
+func (*CreateRoleRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *CreateRoleRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *CreateRoleRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateRoleRequest) GetCreatorId() string {
+	if x != nil {
+		return x.CreatorId
+	}
+	return ""
+}
+
 type UpdateRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
@@ -1118,7 +1709,7 @@ type UpdateRoleRequest struct {
 
 func (x *UpdateRoleRequest) Reset() {
 	*x = UpdateRoleRequest{}
-	mi := &file_servers_proto_msgTypes[16]
+	mi := &file_servers_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1130,7 +1721,7 @@ func (x *UpdateRoleRequest) String() string {
 func (*UpdateRoleRequest) ProtoMessage() {}
 
 func (x *UpdateRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[16]
+	mi := &file_servers_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1143,7 +1734,7 @@ func (x *UpdateRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRoleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRoleRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{16}
+	return file_servers_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UpdateRoleRequest) GetServerId() string {
@@ -1199,7 +1790,7 @@ type DeleteRoleRequest struct {
 
 func (x *DeleteRoleRequest) Reset() {
 	*x = DeleteRoleRequest{}
-	mi := &file_servers_proto_msgTypes[17]
+	mi := &file_servers_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1211,7 +1802,7 @@ func (x *DeleteRoleRequest) String() string {
 func (*DeleteRoleRequest) ProtoMessage() {}
 
 func (x *DeleteRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[17]
+	mi := &file_servers_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1224,7 +1815,7 @@ func (x *DeleteRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRoleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRoleRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{17}
+	return file_servers_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *DeleteRoleRequest) GetServerId() string {
@@ -1251,7 +1842,7 @@ func (x *DeleteRoleRequest) GetDeleterId() string {
 type AssignRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	MemberId      string                 `protobuf:"bytes,2,opt,name=member_id,json=memberId,proto3" json:"member_id,omitempty"` // ← ДОБАВЛЕНО
 	RoleId        string                 `protobuf:"bytes,3,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	AssignedBy    string                 `protobuf:"bytes,4,opt,name=assigned_by,json=assignedBy,proto3" json:"assigned_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1260,7 +1851,7 @@ type AssignRoleRequest struct {
 
 func (x *AssignRoleRequest) Reset() {
 	*x = AssignRoleRequest{}
-	mi := &file_servers_proto_msgTypes[18]
+	mi := &file_servers_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1272,7 +1863,7 @@ func (x *AssignRoleRequest) String() string {
 func (*AssignRoleRequest) ProtoMessage() {}
 
 func (x *AssignRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[18]
+	mi := &file_servers_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1285,7 +1876,7 @@ func (x *AssignRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssignRoleRequest.ProtoReflect.Descriptor instead.
 func (*AssignRoleRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{18}
+	return file_servers_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AssignRoleRequest) GetServerId() string {
@@ -1295,9 +1886,9 @@ func (x *AssignRoleRequest) GetServerId() string {
 	return ""
 }
 
-func (x *AssignRoleRequest) GetUserId() string {
+func (x *AssignRoleRequest) GetMemberId() string {
 	if x != nil {
-		return x.UserId
+		return x.MemberId
 	}
 	return ""
 }
@@ -1319,7 +1910,7 @@ func (x *AssignRoleRequest) GetAssignedBy() string {
 type RemoveRoleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	MemberId      string                 `protobuf:"bytes,2,opt,name=member_id,json=memberId,proto3" json:"member_id,omitempty"` // ← ДОБАВЛЕНО
 	RoleId        string                 `protobuf:"bytes,3,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	RemovedBy     string                 `protobuf:"bytes,4,opt,name=removed_by,json=removedBy,proto3" json:"removed_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1328,7 +1919,7 @@ type RemoveRoleRequest struct {
 
 func (x *RemoveRoleRequest) Reset() {
 	*x = RemoveRoleRequest{}
-	mi := &file_servers_proto_msgTypes[19]
+	mi := &file_servers_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1931,7 @@ func (x *RemoveRoleRequest) String() string {
 func (*RemoveRoleRequest) ProtoMessage() {}
 
 func (x *RemoveRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[19]
+	mi := &file_servers_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1944,7 @@ func (x *RemoveRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveRoleRequest.ProtoReflect.Descriptor instead.
 func (*RemoveRoleRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{19}
+	return file_servers_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *RemoveRoleRequest) GetServerId() string {
@@ -1363,9 +1954,9 @@ func (x *RemoveRoleRequest) GetServerId() string {
 	return ""
 }
 
-func (x *RemoveRoleRequest) GetUserId() string {
+func (x *RemoveRoleRequest) GetMemberId() string {
 	if x != nil {
-		return x.UserId
+		return x.MemberId
 	}
 	return ""
 }
@@ -1384,30 +1975,28 @@ func (x *RemoveRoleRequest) GetRemovedBy() string {
 	return ""
 }
 
-type CreateServerChatRequest struct {
+type GetMemberRolesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,3,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"` // ← chat_type нет — все чаты на сервере = ChatTypeServer
+	MemberId      string                 `protobuf:"bytes,1,opt,name=member_id,json=memberId,proto3" json:"member_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateServerChatRequest) Reset() {
-	*x = CreateServerChatRequest{}
-	mi := &file_servers_proto_msgTypes[20]
+func (x *GetMemberRolesRequest) Reset() {
+	*x = GetMemberRolesRequest{}
+	mi := &file_servers_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateServerChatRequest) String() string {
+func (x *GetMemberRolesRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateServerChatRequest) ProtoMessage() {}
+func (*GetMemberRolesRequest) ProtoMessage() {}
 
-func (x *CreateServerChatRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[20]
+func (x *GetMemberRolesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1418,30 +2007,60 @@ func (x *CreateServerChatRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateServerChatRequest.ProtoReflect.Descriptor instead.
-func (*CreateServerChatRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{20}
+// Deprecated: Use GetMemberRolesRequest.ProtoReflect.Descriptor instead.
+func (*GetMemberRolesRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *CreateServerChatRequest) GetServerId() string {
+func (x *GetMemberRolesRequest) GetMemberId() string {
 	if x != nil {
-		return x.ServerId
+		return x.MemberId
 	}
 	return ""
 }
 
-func (x *CreateServerChatRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
+type GetMemberRolesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Roles         []*RoleDTO             `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateServerChatRequest) GetCreatedBy() string {
+func (x *GetMemberRolesResponse) Reset() {
+	*x = GetMemberRolesResponse{}
+	mi := &file_servers_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMemberRolesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMemberRolesResponse) ProtoMessage() {}
+
+func (x *GetMemberRolesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[31]
 	if x != nil {
-		return x.CreatedBy
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return ""
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMemberRolesResponse.ProtoReflect.Descriptor instead.
+func (*GetMemberRolesResponse) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetMemberRolesResponse) GetRoles() []*RoleDTO {
+	if x != nil {
+		return x.Roles
+	}
+	return nil
 }
 
 type ServerChatDTO struct {
@@ -1457,7 +2076,7 @@ type ServerChatDTO struct {
 
 func (x *ServerChatDTO) Reset() {
 	*x = ServerChatDTO{}
-	mi := &file_servers_proto_msgTypes[21]
+	mi := &file_servers_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1469,7 +2088,7 @@ func (x *ServerChatDTO) String() string {
 func (*ServerChatDTO) ProtoMessage() {}
 
 func (x *ServerChatDTO) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[21]
+	mi := &file_servers_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1482,7 +2101,7 @@ func (x *ServerChatDTO) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerChatDTO.ProtoReflect.Descriptor instead.
 func (*ServerChatDTO) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{21}
+	return file_servers_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ServerChatDTO) GetChatId() string {
@@ -1520,6 +2139,66 @@ func (x *ServerChatDTO) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type CreateServerChatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CreatedBy     string                 `protobuf:"bytes,3,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateServerChatRequest) Reset() {
+	*x = CreateServerChatRequest{}
+	mi := &file_servers_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateServerChatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateServerChatRequest) ProtoMessage() {}
+
+func (x *CreateServerChatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_servers_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateServerChatRequest.ProtoReflect.Descriptor instead.
+func (*CreateServerChatRequest) Descriptor() ([]byte, []int) {
+	return file_servers_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *CreateServerChatRequest) GetServerId() string {
+	if x != nil {
+		return x.ServerId
+	}
+	return ""
+}
+
+func (x *CreateServerChatRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateServerChatRequest) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
 type ListServerChatsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
@@ -1530,7 +2209,7 @@ type ListServerChatsRequest struct {
 
 func (x *ListServerChatsRequest) Reset() {
 	*x = ListServerChatsRequest{}
-	mi := &file_servers_proto_msgTypes[22]
+	mi := &file_servers_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1542,7 +2221,7 @@ func (x *ListServerChatsRequest) String() string {
 func (*ListServerChatsRequest) ProtoMessage() {}
 
 func (x *ListServerChatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[22]
+	mi := &file_servers_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1555,7 +2234,7 @@ func (x *ListServerChatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServerChatsRequest.ProtoReflect.Descriptor instead.
 func (*ListServerChatsRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{22}
+	return file_servers_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListServerChatsRequest) GetServerId() string {
@@ -1581,7 +2260,7 @@ type ListServerChatsResponse struct {
 
 func (x *ListServerChatsResponse) Reset() {
 	*x = ListServerChatsResponse{}
-	mi := &file_servers_proto_msgTypes[23]
+	mi := &file_servers_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1593,7 +2272,7 @@ func (x *ListServerChatsResponse) String() string {
 func (*ListServerChatsResponse) ProtoMessage() {}
 
 func (x *ListServerChatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[23]
+	mi := &file_servers_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1606,7 +2285,7 @@ func (x *ListServerChatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServerChatsResponse.ProtoReflect.Descriptor instead.
 func (*ListServerChatsResponse) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{23}
+	return file_servers_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListServerChatsResponse) GetChats() []*ServerChatDTO {
@@ -1627,7 +2306,7 @@ type DeleteServerChatRequest struct {
 
 func (x *DeleteServerChatRequest) Reset() {
 	*x = DeleteServerChatRequest{}
-	mi := &file_servers_proto_msgTypes[24]
+	mi := &file_servers_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1639,7 +2318,7 @@ func (x *DeleteServerChatRequest) String() string {
 func (*DeleteServerChatRequest) ProtoMessage() {}
 
 func (x *DeleteServerChatRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[24]
+	mi := &file_servers_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1652,7 +2331,7 @@ func (x *DeleteServerChatRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteServerChatRequest.ProtoReflect.Descriptor instead.
 func (*DeleteServerChatRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{24}
+	return file_servers_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *DeleteServerChatRequest) GetServerId() string {
@@ -1676,289 +2355,98 @@ func (x *DeleteServerChatRequest) GetDeleterId() string {
 	return ""
 }
 
-type GetUploadIconURLRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	UploaderId    string                 `protobuf:"bytes,2,opt,name=uploader_id,json=uploaderId,proto3" json:"uploader_id,omitempty"`
-	FileName      string                 `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	MimeType      string                 `protobuf:"bytes,4,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
-	FileSize      int64                  `protobuf:"varint,5,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUploadIconURLRequest) Reset() {
-	*x = GetUploadIconURLRequest{}
-	mi := &file_servers_proto_msgTypes[25]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUploadIconURLRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUploadIconURLRequest) ProtoMessage() {}
-
-func (x *GetUploadIconURLRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[25]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUploadIconURLRequest.ProtoReflect.Descriptor instead.
-func (*GetUploadIconURLRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{25}
-}
-
-func (x *GetUploadIconURLRequest) GetServerId() string {
-	if x != nil {
-		return x.ServerId
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLRequest) GetUploaderId() string {
-	if x != nil {
-		return x.UploaderId
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLRequest) GetFileName() string {
-	if x != nil {
-		return x.FileName
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLRequest) GetMimeType() string {
-	if x != nil {
-		return x.MimeType
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLRequest) GetFileSize() int64 {
-	if x != nil {
-		return x.FileSize
-	}
-	return 0
-}
-
-type GetUploadIconURLResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FileId        string                 `protobuf:"bytes,1,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
-	UploadUrl     string                 `protobuf:"bytes,2,opt,name=upload_url,json=uploadUrl,proto3" json:"upload_url,omitempty"`
-	ObjectKey     string                 `protobuf:"bytes,3,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUploadIconURLResponse) Reset() {
-	*x = GetUploadIconURLResponse{}
-	mi := &file_servers_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUploadIconURLResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUploadIconURLResponse) ProtoMessage() {}
-
-func (x *GetUploadIconURLResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUploadIconURLResponse.ProtoReflect.Descriptor instead.
-func (*GetUploadIconURLResponse) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *GetUploadIconURLResponse) GetFileId() string {
-	if x != nil {
-		return x.FileId
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLResponse) GetUploadUrl() string {
-	if x != nil {
-		return x.UploadUrl
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLResponse) GetObjectKey() string {
-	if x != nil {
-		return x.ObjectKey
-	}
-	return ""
-}
-
-func (x *GetUploadIconURLResponse) GetExpiresAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ExpiresAt
-	}
-	return nil
-}
-
-type ConfirmIconUploadRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerId      string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3" json:"server_id,omitempty"`
-	FileId        string                 `protobuf:"bytes,2,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
-	ConfirmerId   string                 `protobuf:"bytes,3,opt,name=confirmer_id,json=confirmerId,proto3" json:"confirmer_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ConfirmIconUploadRequest) Reset() {
-	*x = ConfirmIconUploadRequest{}
-	mi := &file_servers_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ConfirmIconUploadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ConfirmIconUploadRequest) ProtoMessage() {}
-
-func (x *ConfirmIconUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_servers_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ConfirmIconUploadRequest.ProtoReflect.Descriptor instead.
-func (*ConfirmIconUploadRequest) Descriptor() ([]byte, []int) {
-	return file_servers_proto_rawDescGZIP(), []int{27}
-}
-
-func (x *ConfirmIconUploadRequest) GetServerId() string {
-	if x != nil {
-		return x.ServerId
-	}
-	return ""
-}
-
-func (x *ConfirmIconUploadRequest) GetFileId() string {
-	if x != nil {
-		return x.FileId
-	}
-	return ""
-}
-
-func (x *ConfirmIconUploadRequest) GetConfirmerId() string {
-	if x != nil {
-		return x.ConfirmerId
-	}
-	return ""
-}
-
 var File_servers_proto protoreflect.FileDescriptor
 
 const file_servers_proto_rawDesc = "" +
 	"\n" +
-	"\rservers.proto\x12\aservers\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa5\x03\n" +
+	"\rservers.proto\x12\aservers\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x96\x02\n" +
 	"\tServerDTO\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x19\n" +
-	"\bowner_id\x18\x04 \x01(\tR\aownerId\x123\n" +
-	"\bsettings\x18\x05 \x01(\v2\x17.servers.ServerSettingsR\bsettings\x129\n" +
+	"\bowner_id\x18\x04 \x01(\tR\aownerId\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"is_deleted\x18\b \x01(\bR\tisDeleted\x12\x1e\n" +
-	"\bicon_url\x18\t \x01(\tH\x01R\aiconUrl\x88\x01\x01\x12\x1e\n" +
-	"\bhas_icon\x18\n" +
-	" \x01(\bH\x02R\ahasIcon\x88\x01\x01B\x0e\n" +
-	"\f_descriptionB\v\n" +
-	"\t_icon_urlB\v\n" +
-	"\t_has_icon\"\xc7\x01\n" +
-	"\x0eServerSettings\x12\x1f\n" +
-	"\vmax_members\x18\x01 \x01(\x05R\n" +
-	"maxMembers\x12.\n" +
-	"\x13allow_member_invite\x18\x02 \x01(\bR\x11allowMemberInvite\x126\n" +
-	"\x17auto_moderation_enabled\x18\x03 \x01(\bR\x15autoModerationEnabled\x12,\n" +
-	"\x12max_message_length\x18\x04 \x01(\x05R\x10maxMessageLength\"\xc2\x01\n" +
+	"is_deleted\x18\a \x01(\bR\tisDeletedB\x0e\n" +
+	"\f_description\"{\n" +
 	"\x13CreateServerRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x02 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x19\n" +
-	"\bowner_id\x18\x03 \x01(\tR\aownerId\x128\n" +
-	"\bsettings\x18\x04 \x01(\v2\x17.servers.ServerSettingsH\x01R\bsettings\x88\x01\x01B\x0e\n" +
-	"\f_descriptionB\v\n" +
-	"\t_settings\"n\n" +
+	"\bowner_id\x18\x03 \x01(\tR\aownerIdB\x0e\n" +
+	"\f_description\"n\n" +
 	"\x14CreateServerResponse\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x129\n" +
 	"\n" +
 	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"R\n" +
 	"\x10GetServerRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12!\n" +
-	"\frequester_id\x18\x02 \x01(\tR\vrequesterId\"\xf1\x01\n" +
+	"\frequester_id\x18\x02 \x01(\tR\vrequesterId\"\xaa\x01\n" +
 	"\x13UpdateServerRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
 	"\n" +
 	"updater_id\x18\x02 \x01(\tR\tupdaterId\x12\x17\n" +
 	"\x04name\x18\x03 \x01(\tH\x00R\x04name\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\x04 \x01(\tH\x01R\vdescription\x88\x01\x01\x128\n" +
-	"\bsettings\x18\x05 \x01(\v2\x17.servers.ServerSettingsH\x02R\bsettings\x88\x01\x01B\a\n" +
+	"\vdescription\x18\x04 \x01(\tH\x01R\vdescription\x88\x01\x01B\a\n" +
 	"\x05_nameB\x0e\n" +
-	"\f_descriptionB\v\n" +
-	"\t_settings\"Q\n" +
+	"\f_description\"Q\n" +
 	"\x13DeleteServerRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
 	"\n" +
-	"deleter_id\x18\x02 \x01(\tR\tdeleterId\"c\n" +
-	"\x10AddMemberRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x19\n" +
-	"\badded_by\x18\x03 \x01(\tR\aaddedBy\"j\n" +
-	"\x13RemoveMemberRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
-	"\n" +
-	"removed_by\x18\x03 \x01(\tR\tremovedBy\"G\n" +
-	"\x0fIsMemberRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"J\n" +
-	"\x10IsMemberResponse\x12\x1b\n" +
-	"\tis_member\x18\x01 \x01(\bR\bisMember\x12\x19\n" +
-	"\brole_ids\x18\x02 \x03(\tR\aroleIds\"_\n" +
-	"\x12ListMembersRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x14\n" +
+	"deleter_id\x18\x02 \x01(\tR\tdeleterId\"_\n" +
+	"\x16ListUserServersRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\"^\n" +
-	"\x13ListMembersResponse\x12,\n" +
-	"\amembers\x18\x01 \x03(\v2\x12.servers.MemberDTOR\amembers\x12\x19\n" +
-	"\bhas_more\x18\x02 \x01(\bR\ahasMore\"\x9f\x02\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"G\n" +
+	"\x17ListUserServersResponse\x12,\n" +
+	"\aservers\x18\x01 \x03(\v2\x12.servers.ServerDTOR\aservers\"\xdd\x01\n" +
+	"\x0fServerConfigDTO\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1f\n" +
+	"\vmax_members\x18\x02 \x01(\x05R\n" +
+	"maxMembers\x12!\n" +
+	"\fmax_channels\x18\x03 \x01(\x05R\vmaxChannels\x12:\n" +
+	"\x19default_notification_mode\x18\x04 \x01(\tR\x17defaultNotificationMode\x12-\n" +
+	"\x12moderation_enabled\x18\x05 \x01(\bR\x11moderationEnabled\"5\n" +
+	"\x16GetServerConfigRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\"\xf0\x02\n" +
+	"\x19UpdateServerConfigRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
+	"\n" +
+	"updater_id\x18\x02 \x01(\tR\tupdaterId\x12$\n" +
+	"\vmax_members\x18\x03 \x01(\x05H\x00R\n" +
+	"maxMembers\x88\x01\x01\x12&\n" +
+	"\fmax_channels\x18\x04 \x01(\x05H\x01R\vmaxChannels\x88\x01\x01\x12?\n" +
+	"\x19default_notification_mode\x18\x05 \x01(\tH\x02R\x17defaultNotificationMode\x88\x01\x01\x122\n" +
+	"\x12moderation_enabled\x18\x06 \x01(\bH\x03R\x11moderationEnabled\x88\x01\x01B\x0e\n" +
+	"\f_max_membersB\x0f\n" +
+	"\r_max_channelsB\x1c\n" +
+	"\x1a_default_notification_modeB\x15\n" +
+	"\x13_moderation_enabled\"\xca\x02\n" +
+	"\x13ModerationConfigDTO\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x126\n" +
+	"\x17profanity_filter_action\x18\x02 \x01(\tR\x15profanityFilterAction\x124\n" +
+	"\x16toxicity_filter_action\x18\x03 \x01(\tR\x14toxicityFilterAction\x125\n" +
+	"\x17nsfw_text_filter_action\x18\x04 \x01(\tR\x14nsfwTextFilterAction\x126\n" +
+	"\x17political_filter_action\x18\x05 \x01(\tR\x15politicalFilterAction\x129\n" +
+	"\x19hate_speech_filter_action\x18\x06 \x01(\tR\x16hateSpeechFilterAction\"9\n" +
+	"\x1aGetModerationConfigRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\"\x99\x04\n" +
+	"\x1dUpdateModerationConfigRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
+	"\n" +
+	"updater_id\x18\x02 \x01(\tR\tupdaterId\x12;\n" +
+	"\x17profanity_filter_action\x18\x03 \x01(\tH\x00R\x15profanityFilterAction\x88\x01\x01\x129\n" +
+	"\x16toxicity_filter_action\x18\x04 \x01(\tH\x01R\x14toxicityFilterAction\x88\x01\x01\x12:\n" +
+	"\x17nsfw_text_filter_action\x18\x05 \x01(\tH\x02R\x14nsfwTextFilterAction\x88\x01\x01\x12;\n" +
+	"\x17political_filter_action\x18\x06 \x01(\tH\x03R\x15politicalFilterAction\x88\x01\x01\x12>\n" +
+	"\x19hate_speech_filter_action\x18\a \x01(\tH\x04R\x16hateSpeechFilterAction\x88\x01\x01B\x1a\n" +
+	"\x18_profanity_filter_actionB\x19\n" +
+	"\x17_toxicity_filter_actionB\x1a\n" +
+	"\x18_nsfw_text_filter_actionB\x1a\n" +
+	"\x18_political_filter_actionB\x1c\n" +
+	"\x1a_hate_speech_filter_action\"\x9f\x02\n" +
 	"\tMemberDTO\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x19\n" +
@@ -1968,15 +2456,44 @@ const file_servers_proto_rawDesc = "" +
 	"\tis_banned\x18\x06 \x01(\bR\bisBanned\x12@\n" +
 	"\vmuted_until\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
 	"mutedUntil\x88\x01\x01B\x0e\n" +
-	"\f_muted_until\"\xaa\x01\n" +
-	"\x11CreateRoleRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
+	"\f_muted_until\"c\n" +
+	"\x10AddMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x19\n" +
+	"\badded_by\x18\x03 \x01(\tR\aaddedBy\"j\n" +
+	"\x13RemoveMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x19\n" +
-	"\x05color\x18\x04 \x01(\tH\x00R\x05color\x88\x01\x01\x12 \n" +
-	"\vpermissions\x18\x05 \x03(\tR\vpermissionsB\b\n" +
-	"\x06_color\"\xbd\x01\n" +
+	"removed_by\x18\x03 \x01(\tR\tremovedBy\"H\n" +
+	"\x10GetMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"_\n" +
+	"\x12ListMembersRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"C\n" +
+	"\x13ListMembersResponse\x12,\n" +
+	"\amembers\x18\x01 \x03(\v2\x12.servers.MemberDTOR\amembers\"e\n" +
+	"\x10BanMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tbanned_by\x18\x03 \x01(\tR\bbannedBy\"k\n" +
+	"\x12UnbanMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
+	"\vunbanned_by\x18\x03 \x01(\tR\n" +
+	"unbannedBy\"\x8b\x01\n" +
+	"\x11MuteMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x19\n" +
+	"\bmuted_by\x18\x03 \x01(\tR\amutedBy\x12%\n" +
+	"\x0eduration_hours\x18\x04 \x01(\x03R\rdurationHours\"j\n" +
+	"\x13UnmuteMemberRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"unmuted_by\x18\x03 \x01(\tR\tunmutedBy\"\xbd\x01\n" +
 	"\aRoleDTO\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x12\n" +
@@ -1985,7 +2502,12 @@ const file_servers_proto_rawDesc = "" +
 	"\vpermissions\x18\x05 \x03(\tR\vpermissions\x12\x1a\n" +
 	"\bposition\x18\x06 \x01(\x05R\bposition\x12\x1d\n" +
 	"\n" +
-	"is_default\x18\a \x01(\bR\tisDefault\"\xd1\x01\n" +
+	"is_default\x18\a \x01(\bR\tisDefault\"c\n" +
+	"\x11CreateRoleRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"creator_id\x18\x03 \x01(\tR\tcreatorId\"\xd1\x01\n" +
 	"\x11UpdateRoleRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
 	"\arole_id\x18\x02 \x01(\tR\x06roleId\x12\x1d\n" +
@@ -2000,31 +2522,35 @@ const file_servers_proto_rawDesc = "" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
 	"\arole_id\x18\x02 \x01(\tR\x06roleId\x12\x1d\n" +
 	"\n" +
-	"deleter_id\x18\x03 \x01(\tR\tdeleterId\"\x83\x01\n" +
+	"deleter_id\x18\x03 \x01(\tR\tdeleterId\"\x87\x01\n" +
 	"\x11AssignRoleRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1b\n" +
+	"\tmember_id\x18\x02 \x01(\tR\bmemberId\x12\x17\n" +
 	"\arole_id\x18\x03 \x01(\tR\x06roleId\x12\x1f\n" +
 	"\vassigned_by\x18\x04 \x01(\tR\n" +
-	"assignedBy\"\x81\x01\n" +
+	"assignedBy\"\x85\x01\n" +
 	"\x11RemoveRoleRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1b\n" +
+	"\tmember_id\x18\x02 \x01(\tR\bmemberId\x12\x17\n" +
 	"\arole_id\x18\x03 \x01(\tR\x06roleId\x12\x1d\n" +
 	"\n" +
-	"removed_by\x18\x04 \x01(\tR\tremovedBy\"i\n" +
-	"\x17CreateServerChatRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
-	"\n" +
-	"created_by\x18\x03 \x01(\tR\tcreatedBy\"\xb0\x01\n" +
+	"removed_by\x18\x04 \x01(\tR\tremovedBy\"4\n" +
+	"\x15GetMemberRolesRequest\x12\x1b\n" +
+	"\tmember_id\x18\x01 \x01(\tR\bmemberId\"@\n" +
+	"\x16GetMemberRolesResponse\x12&\n" +
+	"\x05roles\x18\x01 \x03(\v2\x10.servers.RoleDTOR\x05roles\"\xb0\x01\n" +
 	"\rServerChatDTO\x12\x17\n" +
 	"\achat_id\x18\x01 \x01(\tR\x06chatId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1a\n" +
 	"\bposition\x18\x04 \x01(\x05R\bposition\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"X\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"i\n" +
+	"\x17CreateServerChatRequest\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x03 \x01(\tR\tcreatedBy\"X\n" +
 	"\x16ListServerChatsRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12!\n" +
 	"\frequester_id\x18\x02 \x01(\tR\vrequesterId\"G\n" +
@@ -2034,36 +2560,26 @@ const file_servers_proto_rawDesc = "" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
 	"\achat_id\x18\x02 \x01(\tR\x06chatId\x12\x1d\n" +
 	"\n" +
-	"deleter_id\x18\x03 \x01(\tR\tdeleterId\"\xae\x01\n" +
-	"\x17GetUploadIconURLRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1f\n" +
-	"\vuploader_id\x18\x02 \x01(\tR\n" +
-	"uploaderId\x12\x1b\n" +
-	"\tfile_name\x18\x03 \x01(\tR\bfileName\x12\x1b\n" +
-	"\tmime_type\x18\x04 \x01(\tR\bmimeType\x12\x1b\n" +
-	"\tfile_size\x18\x05 \x01(\x03R\bfileSize\"\xac\x01\n" +
-	"\x18GetUploadIconURLResponse\x12\x17\n" +
-	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x1d\n" +
-	"\n" +
-	"upload_url\x18\x02 \x01(\tR\tuploadUrl\x12\x1d\n" +
-	"\n" +
-	"object_key\x18\x03 \x01(\tR\tobjectKey\x129\n" +
-	"\n" +
-	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"s\n" +
-	"\x18ConfirmIconUploadRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x17\n" +
-	"\afile_id\x18\x02 \x01(\tR\x06fileId\x12!\n" +
-	"\fconfirmer_id\x18\x03 \x01(\tR\vconfirmerId2\x95\n" +
-	"\n" +
+	"deleter_id\x18\x03 \x01(\tR\tdeleterId2\xf0\x0e\n" +
 	"\x0eServersService\x12K\n" +
 	"\fCreateServer\x12\x1c.servers.CreateServerRequest\x1a\x1d.servers.CreateServerResponse\x12:\n" +
 	"\tGetServer\x12\x19.servers.GetServerRequest\x1a\x12.servers.ServerDTO\x12D\n" +
 	"\fUpdateServer\x12\x1c.servers.UpdateServerRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
-	"\fDeleteServer\x12\x1c.servers.DeleteServerRequest\x1a\x16.google.protobuf.Empty\x12>\n" +
+	"\fDeleteServer\x12\x1c.servers.DeleteServerRequest\x1a\x16.google.protobuf.Empty\x12T\n" +
+	"\x0fListUserServers\x12\x1f.servers.ListUserServersRequest\x1a .servers.ListUserServersResponse\x12L\n" +
+	"\x0fGetServerConfig\x12\x1f.servers.GetServerConfigRequest\x1a\x18.servers.ServerConfigDTO\x12P\n" +
+	"\x12UpdateServerConfig\x12\".servers.UpdateServerConfigRequest\x1a\x16.google.protobuf.Empty\x12X\n" +
+	"\x13GetModerationConfig\x12#.servers.GetModerationConfigRequest\x1a\x1c.servers.ModerationConfigDTO\x12X\n" +
+	"\x16UpdateModerationConfig\x12&.servers.UpdateModerationConfigRequest\x1a\x16.google.protobuf.Empty\x12>\n" +
 	"\tAddMember\x12\x19.servers.AddMemberRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
-	"\fRemoveMember\x12\x1c.servers.RemoveMemberRequest\x1a\x16.google.protobuf.Empty\x12?\n" +
-	"\bIsMember\x12\x18.servers.IsMemberRequest\x1a\x19.servers.IsMemberResponse\x12H\n" +
-	"\vListMembers\x12\x1b.servers.ListMembersRequest\x1a\x1c.servers.ListMembersResponse\x12:\n" +
+	"\fRemoveMember\x12\x1c.servers.RemoveMemberRequest\x1a\x16.google.protobuf.Empty\x12:\n" +
+	"\tGetMember\x12\x19.servers.GetMemberRequest\x1a\x12.servers.MemberDTO\x12H\n" +
+	"\vListMembers\x12\x1b.servers.ListMembersRequest\x1a\x1c.servers.ListMembersResponse\x12>\n" +
+	"\tBanMember\x12\x19.servers.BanMemberRequest\x1a\x16.google.protobuf.Empty\x12B\n" +
+	"\vUnbanMember\x12\x1b.servers.UnbanMemberRequest\x1a\x16.google.protobuf.Empty\x12@\n" +
+	"\n" +
+	"MuteMember\x12\x1a.servers.MuteMemberRequest\x1a\x16.google.protobuf.Empty\x12D\n" +
+	"\fUnmuteMember\x12\x1c.servers.UnmuteMemberRequest\x1a\x16.google.protobuf.Empty\x12:\n" +
 	"\n" +
 	"CreateRole\x12\x1a.servers.CreateRoleRequest\x1a\x10.servers.RoleDTO\x12@\n" +
 	"\n" +
@@ -2073,12 +2589,11 @@ const file_servers_proto_rawDesc = "" +
 	"\n" +
 	"AssignRole\x12\x1a.servers.AssignRoleRequest\x1a\x16.google.protobuf.Empty\x12@\n" +
 	"\n" +
-	"RemoveRole\x12\x1a.servers.RemoveRoleRequest\x1a\x16.google.protobuf.Empty\x12L\n" +
+	"RemoveRole\x12\x1a.servers.RemoveRoleRequest\x1a\x16.google.protobuf.Empty\x12Q\n" +
+	"\x0eGetMemberRoles\x12\x1e.servers.GetMemberRolesRequest\x1a\x1f.servers.GetMemberRolesResponse\x12L\n" +
 	"\x10CreateServerChat\x12 .servers.CreateServerChatRequest\x1a\x16.servers.ServerChatDTO\x12T\n" +
 	"\x0fListServerChats\x12\x1f.servers.ListServerChatsRequest\x1a .servers.ListServerChatsResponse\x12L\n" +
-	"\x10DeleteServerChat\x12 .servers.DeleteServerChatRequest\x1a\x16.google.protobuf.Empty\x12W\n" +
-	"\x10GetUploadIconURL\x12 .servers.GetUploadIconURLRequest\x1a!.servers.GetUploadIconURLResponse\x12N\n" +
-	"\x11ConfirmIconUpload\x12!.servers.ConfirmIconUploadRequest\x1a\x16.google.protobuf.EmptyBHZFgithub.com/MrEsbens/messenger-servers-service/api/servers/v1;serversv1b\x06proto3"
+	"\x10DeleteServerChat\x12 .servers.DeleteServerChatRequest\x1a\x16.google.protobuf.EmptyBHZFgithub.com/MrEsbens/messenger-servers-service/api/servers/v1;serversv1b\x06proto3"
 
 var (
 	file_servers_proto_rawDescOnce sync.Once
@@ -2092,93 +2607,116 @@ func file_servers_proto_rawDescGZIP() []byte {
 	return file_servers_proto_rawDescData
 }
 
-var file_servers_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_servers_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_servers_proto_goTypes = []any{
-	(*ServerDTO)(nil),                // 0: servers.ServerDTO
-	(*ServerSettings)(nil),           // 1: servers.ServerSettings
-	(*CreateServerRequest)(nil),      // 2: servers.CreateServerRequest
-	(*CreateServerResponse)(nil),     // 3: servers.CreateServerResponse
-	(*GetServerRequest)(nil),         // 4: servers.GetServerRequest
-	(*UpdateServerRequest)(nil),      // 5: servers.UpdateServerRequest
-	(*DeleteServerRequest)(nil),      // 6: servers.DeleteServerRequest
-	(*AddMemberRequest)(nil),         // 7: servers.AddMemberRequest
-	(*RemoveMemberRequest)(nil),      // 8: servers.RemoveMemberRequest
-	(*IsMemberRequest)(nil),          // 9: servers.IsMemberRequest
-	(*IsMemberResponse)(nil),         // 10: servers.IsMemberResponse
-	(*ListMembersRequest)(nil),       // 11: servers.ListMembersRequest
-	(*ListMembersResponse)(nil),      // 12: servers.ListMembersResponse
-	(*MemberDTO)(nil),                // 13: servers.MemberDTO
-	(*CreateRoleRequest)(nil),        // 14: servers.CreateRoleRequest
-	(*RoleDTO)(nil),                  // 15: servers.RoleDTO
-	(*UpdateRoleRequest)(nil),        // 16: servers.UpdateRoleRequest
-	(*DeleteRoleRequest)(nil),        // 17: servers.DeleteRoleRequest
-	(*AssignRoleRequest)(nil),        // 18: servers.AssignRoleRequest
-	(*RemoveRoleRequest)(nil),        // 19: servers.RemoveRoleRequest
-	(*CreateServerChatRequest)(nil),  // 20: servers.CreateServerChatRequest
-	(*ServerChatDTO)(nil),            // 21: servers.ServerChatDTO
-	(*ListServerChatsRequest)(nil),   // 22: servers.ListServerChatsRequest
-	(*ListServerChatsResponse)(nil),  // 23: servers.ListServerChatsResponse
-	(*DeleteServerChatRequest)(nil),  // 24: servers.DeleteServerChatRequest
-	(*GetUploadIconURLRequest)(nil),  // 25: servers.GetUploadIconURLRequest
-	(*GetUploadIconURLResponse)(nil), // 26: servers.GetUploadIconURLResponse
-	(*ConfirmIconUploadRequest)(nil), // 27: servers.ConfirmIconUploadRequest
-	(*timestamppb.Timestamp)(nil),    // 28: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),            // 29: google.protobuf.Empty
+	(*ServerDTO)(nil),                     // 0: servers.ServerDTO
+	(*CreateServerRequest)(nil),           // 1: servers.CreateServerRequest
+	(*CreateServerResponse)(nil),          // 2: servers.CreateServerResponse
+	(*GetServerRequest)(nil),              // 3: servers.GetServerRequest
+	(*UpdateServerRequest)(nil),           // 4: servers.UpdateServerRequest
+	(*DeleteServerRequest)(nil),           // 5: servers.DeleteServerRequest
+	(*ListUserServersRequest)(nil),        // 6: servers.ListUserServersRequest
+	(*ListUserServersResponse)(nil),       // 7: servers.ListUserServersResponse
+	(*ServerConfigDTO)(nil),               // 8: servers.ServerConfigDTO
+	(*GetServerConfigRequest)(nil),        // 9: servers.GetServerConfigRequest
+	(*UpdateServerConfigRequest)(nil),     // 10: servers.UpdateServerConfigRequest
+	(*ModerationConfigDTO)(nil),           // 11: servers.ModerationConfigDTO
+	(*GetModerationConfigRequest)(nil),    // 12: servers.GetModerationConfigRequest
+	(*UpdateModerationConfigRequest)(nil), // 13: servers.UpdateModerationConfigRequest
+	(*MemberDTO)(nil),                     // 14: servers.MemberDTO
+	(*AddMemberRequest)(nil),              // 15: servers.AddMemberRequest
+	(*RemoveMemberRequest)(nil),           // 16: servers.RemoveMemberRequest
+	(*GetMemberRequest)(nil),              // 17: servers.GetMemberRequest
+	(*ListMembersRequest)(nil),            // 18: servers.ListMembersRequest
+	(*ListMembersResponse)(nil),           // 19: servers.ListMembersResponse
+	(*BanMemberRequest)(nil),              // 20: servers.BanMemberRequest
+	(*UnbanMemberRequest)(nil),            // 21: servers.UnbanMemberRequest
+	(*MuteMemberRequest)(nil),             // 22: servers.MuteMemberRequest
+	(*UnmuteMemberRequest)(nil),           // 23: servers.UnmuteMemberRequest
+	(*RoleDTO)(nil),                       // 24: servers.RoleDTO
+	(*CreateRoleRequest)(nil),             // 25: servers.CreateRoleRequest
+	(*UpdateRoleRequest)(nil),             // 26: servers.UpdateRoleRequest
+	(*DeleteRoleRequest)(nil),             // 27: servers.DeleteRoleRequest
+	(*AssignRoleRequest)(nil),             // 28: servers.AssignRoleRequest
+	(*RemoveRoleRequest)(nil),             // 29: servers.RemoveRoleRequest
+	(*GetMemberRolesRequest)(nil),         // 30: servers.GetMemberRolesRequest
+	(*GetMemberRolesResponse)(nil),        // 31: servers.GetMemberRolesResponse
+	(*ServerChatDTO)(nil),                 // 32: servers.ServerChatDTO
+	(*CreateServerChatRequest)(nil),       // 33: servers.CreateServerChatRequest
+	(*ListServerChatsRequest)(nil),        // 34: servers.ListServerChatsRequest
+	(*ListServerChatsResponse)(nil),       // 35: servers.ListServerChatsResponse
+	(*DeleteServerChatRequest)(nil),       // 36: servers.DeleteServerChatRequest
+	(*timestamppb.Timestamp)(nil),         // 37: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                 // 38: google.protobuf.Empty
 }
 var file_servers_proto_depIdxs = []int32{
-	1,  // 0: servers.ServerDTO.settings:type_name -> servers.ServerSettings
-	28, // 1: servers.ServerDTO.created_at:type_name -> google.protobuf.Timestamp
-	28, // 2: servers.ServerDTO.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: servers.CreateServerRequest.settings:type_name -> servers.ServerSettings
-	28, // 4: servers.CreateServerResponse.created_at:type_name -> google.protobuf.Timestamp
-	1,  // 5: servers.UpdateServerRequest.settings:type_name -> servers.ServerSettings
-	13, // 6: servers.ListMembersResponse.members:type_name -> servers.MemberDTO
-	28, // 7: servers.MemberDTO.joined_at:type_name -> google.protobuf.Timestamp
-	28, // 8: servers.MemberDTO.muted_until:type_name -> google.protobuf.Timestamp
-	28, // 9: servers.ServerChatDTO.created_at:type_name -> google.protobuf.Timestamp
-	21, // 10: servers.ListServerChatsResponse.chats:type_name -> servers.ServerChatDTO
-	28, // 11: servers.GetUploadIconURLResponse.expires_at:type_name -> google.protobuf.Timestamp
-	2,  // 12: servers.ServersService.CreateServer:input_type -> servers.CreateServerRequest
-	4,  // 13: servers.ServersService.GetServer:input_type -> servers.GetServerRequest
-	5,  // 14: servers.ServersService.UpdateServer:input_type -> servers.UpdateServerRequest
-	6,  // 15: servers.ServersService.DeleteServer:input_type -> servers.DeleteServerRequest
-	7,  // 16: servers.ServersService.AddMember:input_type -> servers.AddMemberRequest
-	8,  // 17: servers.ServersService.RemoveMember:input_type -> servers.RemoveMemberRequest
-	9,  // 18: servers.ServersService.IsMember:input_type -> servers.IsMemberRequest
-	11, // 19: servers.ServersService.ListMembers:input_type -> servers.ListMembersRequest
-	14, // 20: servers.ServersService.CreateRole:input_type -> servers.CreateRoleRequest
-	16, // 21: servers.ServersService.UpdateRole:input_type -> servers.UpdateRoleRequest
-	17, // 22: servers.ServersService.DeleteRole:input_type -> servers.DeleteRoleRequest
-	18, // 23: servers.ServersService.AssignRole:input_type -> servers.AssignRoleRequest
-	19, // 24: servers.ServersService.RemoveRole:input_type -> servers.RemoveRoleRequest
-	20, // 25: servers.ServersService.CreateServerChat:input_type -> servers.CreateServerChatRequest
-	22, // 26: servers.ServersService.ListServerChats:input_type -> servers.ListServerChatsRequest
-	24, // 27: servers.ServersService.DeleteServerChat:input_type -> servers.DeleteServerChatRequest
-	25, // 28: servers.ServersService.GetUploadIconURL:input_type -> servers.GetUploadIconURLRequest
-	27, // 29: servers.ServersService.ConfirmIconUpload:input_type -> servers.ConfirmIconUploadRequest
-	3,  // 30: servers.ServersService.CreateServer:output_type -> servers.CreateServerResponse
-	0,  // 31: servers.ServersService.GetServer:output_type -> servers.ServerDTO
-	29, // 32: servers.ServersService.UpdateServer:output_type -> google.protobuf.Empty
-	29, // 33: servers.ServersService.DeleteServer:output_type -> google.protobuf.Empty
-	29, // 34: servers.ServersService.AddMember:output_type -> google.protobuf.Empty
-	29, // 35: servers.ServersService.RemoveMember:output_type -> google.protobuf.Empty
-	10, // 36: servers.ServersService.IsMember:output_type -> servers.IsMemberResponse
-	12, // 37: servers.ServersService.ListMembers:output_type -> servers.ListMembersResponse
-	15, // 38: servers.ServersService.CreateRole:output_type -> servers.RoleDTO
-	29, // 39: servers.ServersService.UpdateRole:output_type -> google.protobuf.Empty
-	29, // 40: servers.ServersService.DeleteRole:output_type -> google.protobuf.Empty
-	29, // 41: servers.ServersService.AssignRole:output_type -> google.protobuf.Empty
-	29, // 42: servers.ServersService.RemoveRole:output_type -> google.protobuf.Empty
-	21, // 43: servers.ServersService.CreateServerChat:output_type -> servers.ServerChatDTO
-	23, // 44: servers.ServersService.ListServerChats:output_type -> servers.ListServerChatsResponse
-	29, // 45: servers.ServersService.DeleteServerChat:output_type -> google.protobuf.Empty
-	26, // 46: servers.ServersService.GetUploadIconURL:output_type -> servers.GetUploadIconURLResponse
-	29, // 47: servers.ServersService.ConfirmIconUpload:output_type -> google.protobuf.Empty
-	30, // [30:48] is the sub-list for method output_type
-	12, // [12:30] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	37, // 0: servers.ServerDTO.created_at:type_name -> google.protobuf.Timestamp
+	37, // 1: servers.ServerDTO.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 2: servers.CreateServerResponse.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 3: servers.ListUserServersResponse.servers:type_name -> servers.ServerDTO
+	37, // 4: servers.MemberDTO.joined_at:type_name -> google.protobuf.Timestamp
+	37, // 5: servers.MemberDTO.muted_until:type_name -> google.protobuf.Timestamp
+	14, // 6: servers.ListMembersResponse.members:type_name -> servers.MemberDTO
+	24, // 7: servers.GetMemberRolesResponse.roles:type_name -> servers.RoleDTO
+	37, // 8: servers.ServerChatDTO.created_at:type_name -> google.protobuf.Timestamp
+	32, // 9: servers.ListServerChatsResponse.chats:type_name -> servers.ServerChatDTO
+	1,  // 10: servers.ServersService.CreateServer:input_type -> servers.CreateServerRequest
+	3,  // 11: servers.ServersService.GetServer:input_type -> servers.GetServerRequest
+	4,  // 12: servers.ServersService.UpdateServer:input_type -> servers.UpdateServerRequest
+	5,  // 13: servers.ServersService.DeleteServer:input_type -> servers.DeleteServerRequest
+	6,  // 14: servers.ServersService.ListUserServers:input_type -> servers.ListUserServersRequest
+	9,  // 15: servers.ServersService.GetServerConfig:input_type -> servers.GetServerConfigRequest
+	10, // 16: servers.ServersService.UpdateServerConfig:input_type -> servers.UpdateServerConfigRequest
+	12, // 17: servers.ServersService.GetModerationConfig:input_type -> servers.GetModerationConfigRequest
+	13, // 18: servers.ServersService.UpdateModerationConfig:input_type -> servers.UpdateModerationConfigRequest
+	15, // 19: servers.ServersService.AddMember:input_type -> servers.AddMemberRequest
+	16, // 20: servers.ServersService.RemoveMember:input_type -> servers.RemoveMemberRequest
+	17, // 21: servers.ServersService.GetMember:input_type -> servers.GetMemberRequest
+	18, // 22: servers.ServersService.ListMembers:input_type -> servers.ListMembersRequest
+	20, // 23: servers.ServersService.BanMember:input_type -> servers.BanMemberRequest
+	21, // 24: servers.ServersService.UnbanMember:input_type -> servers.UnbanMemberRequest
+	22, // 25: servers.ServersService.MuteMember:input_type -> servers.MuteMemberRequest
+	23, // 26: servers.ServersService.UnmuteMember:input_type -> servers.UnmuteMemberRequest
+	25, // 27: servers.ServersService.CreateRole:input_type -> servers.CreateRoleRequest
+	26, // 28: servers.ServersService.UpdateRole:input_type -> servers.UpdateRoleRequest
+	27, // 29: servers.ServersService.DeleteRole:input_type -> servers.DeleteRoleRequest
+	28, // 30: servers.ServersService.AssignRole:input_type -> servers.AssignRoleRequest
+	29, // 31: servers.ServersService.RemoveRole:input_type -> servers.RemoveRoleRequest
+	30, // 32: servers.ServersService.GetMemberRoles:input_type -> servers.GetMemberRolesRequest
+	33, // 33: servers.ServersService.CreateServerChat:input_type -> servers.CreateServerChatRequest
+	34, // 34: servers.ServersService.ListServerChats:input_type -> servers.ListServerChatsRequest
+	36, // 35: servers.ServersService.DeleteServerChat:input_type -> servers.DeleteServerChatRequest
+	2,  // 36: servers.ServersService.CreateServer:output_type -> servers.CreateServerResponse
+	0,  // 37: servers.ServersService.GetServer:output_type -> servers.ServerDTO
+	38, // 38: servers.ServersService.UpdateServer:output_type -> google.protobuf.Empty
+	38, // 39: servers.ServersService.DeleteServer:output_type -> google.protobuf.Empty
+	7,  // 40: servers.ServersService.ListUserServers:output_type -> servers.ListUserServersResponse
+	8,  // 41: servers.ServersService.GetServerConfig:output_type -> servers.ServerConfigDTO
+	38, // 42: servers.ServersService.UpdateServerConfig:output_type -> google.protobuf.Empty
+	11, // 43: servers.ServersService.GetModerationConfig:output_type -> servers.ModerationConfigDTO
+	38, // 44: servers.ServersService.UpdateModerationConfig:output_type -> google.protobuf.Empty
+	38, // 45: servers.ServersService.AddMember:output_type -> google.protobuf.Empty
+	38, // 46: servers.ServersService.RemoveMember:output_type -> google.protobuf.Empty
+	14, // 47: servers.ServersService.GetMember:output_type -> servers.MemberDTO
+	19, // 48: servers.ServersService.ListMembers:output_type -> servers.ListMembersResponse
+	38, // 49: servers.ServersService.BanMember:output_type -> google.protobuf.Empty
+	38, // 50: servers.ServersService.UnbanMember:output_type -> google.protobuf.Empty
+	38, // 51: servers.ServersService.MuteMember:output_type -> google.protobuf.Empty
+	38, // 52: servers.ServersService.UnmuteMember:output_type -> google.protobuf.Empty
+	24, // 53: servers.ServersService.CreateRole:output_type -> servers.RoleDTO
+	38, // 54: servers.ServersService.UpdateRole:output_type -> google.protobuf.Empty
+	38, // 55: servers.ServersService.DeleteRole:output_type -> google.protobuf.Empty
+	38, // 56: servers.ServersService.AssignRole:output_type -> google.protobuf.Empty
+	38, // 57: servers.ServersService.RemoveRole:output_type -> google.protobuf.Empty
+	31, // 58: servers.ServersService.GetMemberRoles:output_type -> servers.GetMemberRolesResponse
+	32, // 59: servers.ServersService.CreateServerChat:output_type -> servers.ServerChatDTO
+	35, // 60: servers.ServersService.ListServerChats:output_type -> servers.ListServerChatsResponse
+	38, // 61: servers.ServersService.DeleteServerChat:output_type -> google.protobuf.Empty
+	36, // [36:62] is the sub-list for method output_type
+	10, // [10:36] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_servers_proto_init() }
@@ -2187,18 +2725,19 @@ func file_servers_proto_init() {
 		return
 	}
 	file_servers_proto_msgTypes[0].OneofWrappers = []any{}
-	file_servers_proto_msgTypes[2].OneofWrappers = []any{}
-	file_servers_proto_msgTypes[5].OneofWrappers = []any{}
+	file_servers_proto_msgTypes[1].OneofWrappers = []any{}
+	file_servers_proto_msgTypes[4].OneofWrappers = []any{}
+	file_servers_proto_msgTypes[10].OneofWrappers = []any{}
 	file_servers_proto_msgTypes[13].OneofWrappers = []any{}
 	file_servers_proto_msgTypes[14].OneofWrappers = []any{}
-	file_servers_proto_msgTypes[16].OneofWrappers = []any{}
+	file_servers_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_servers_proto_rawDesc), len(file_servers_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
