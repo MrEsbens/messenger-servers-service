@@ -49,3 +49,7 @@ var (
 var (
 	ErrMaxMembersReached = errors.New("maximum number of members reached")
 )
+
+var (
+	ErrPermissionDenied = errors.New("permission denied")
+)

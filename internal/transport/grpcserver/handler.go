@@ -488,7 +488,6 @@ func (h *Handler) MuteMember(ctx context.Context, req *serversv1.MuteMemberReque
 		duration = &d
 	}
 
-	// 🔴 Передаём mutedBy в сервис
 	err = h.serverService.MuteMember(ctx, serverID, userID, mutedBy, duration)
 	if err != nil {
 		if err == domain.ErrNotMember {
@@ -715,8 +714,16 @@ func (h *Handler) ListServerChats(ctx context.Context, req *serversv1.ListServer
 		return nil, status.Error(codes.InvalidArgument, "invalid server_id")
 	}
 
-	chats, err := h.serverService.ListServerChats(ctx, serverID)
+	requesterID, err := uuid.Parse(req.RequesterId)
 	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid requester_id")
+	}
+
+	chats, err := h.serverService.ListServerChats(ctx, serverID, requesterID)
+	if err != nil {
+		if err == domain.ErrNotMember {
+			return nil, status.Error(codes.NotFound, "user is not a member of this server")
+		}
 		return nil, status.Error(codes.Internal, fmt.Sprintf("failed to list server chats: %v", err))
 	}
 

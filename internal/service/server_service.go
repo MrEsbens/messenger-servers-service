@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// ServerServiceInterface — публичный интерфейс сервиса
 type ServerServiceInterface interface {
 	// Server CRUD
 	CreateServer(ctx context.Context, name string, ownerID uuid.UUID, description *string) (*domain.Server, error)
@@ -46,7 +45,7 @@ type ServerServiceInterface interface {
 
 	// Server Chats
 	CreateServerChat(ctx context.Context, serverID uuid.UUID, name string, createdBy uuid.UUID) (*repository.ServerChat, error)
-	ListServerChats(ctx context.Context, serverID uuid.UUID) ([]*repository.ServerChat, error)
+	ListServerChats(ctx context.Context, serverID, requesterID uuid.UUID) ([]*repository.ServerChat, error)
 	DeleteServerChat(ctx context.Context, serverID, chatID, deleterID uuid.UUID) error
 
 	// Moderation
@@ -54,22 +53,18 @@ type ServerServiceInterface interface {
 	LogViolation(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, messageContent *string, violationType domain.ViolationType, action domain.ModerationAction) error
 }
 
-// ServerService — реализация сервиса
 type ServerService struct {
-	serverRepo     repository.ServerRepository
-	configRepo     repository.ConfigRepository
-	memberRepo     repository.MemberRepository
-	roleRepo       repository.RoleRepository
-	moderationRepo repository.ModerationRepository
-	chatRepo       repository.ChatRepository
-
-	// Внешние сервисы
+	serverRepo       repository.ServerRepository
+	configRepo       repository.ConfigRepository
+	memberRepo       repository.MemberRepository
+	roleRepo         repository.RoleRepository
+	moderationRepo   repository.ModerationRepository
+	chatRepo         repository.ChatRepository
 	identityClient   grpcclient.IdentityClientInterface
 	chatsClient      grpcclient.ChatsClientInterface
 	moderationClient grpcclient.ModerationClientInterface
 }
 
-// NewServerService создаёт новый сервис
 func NewServerService(
 	serverRepo repository.ServerRepository,
 	configRepo repository.ConfigRepository,
@@ -95,33 +90,150 @@ func NewServerService(
 }
 
 // ───────────────────────────────────────────────────────────
+// Helpers
+// ───────────────────────────────────────────────────────────
+
+func (s *ServerService) getUserPermissions(ctx context.Context, serverID, userID uuid.UUID) ([]domain.Permission, error) {
+	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return nil, domain.ErrNotMember
+		}
+		return nil, err
+	}
+
+	roles, err := s.roleRepo.GetMemberRoles(ctx, member.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	permissionSet := make(map[domain.Permission]bool)
+	for _, role := range roles {
+		for _, perm := range role.Permissions {
+			permissionSet[domain.Permission(perm)] = true
+		}
+	}
+
+	permissions := make([]domain.Permission, 0, len(permissionSet))
+	for perm := range permissionSet {
+		permissions = append(permissions, perm)
+	}
+
+	return permissions, nil
+}
+
+func (s *ServerService) hasPermission(ctx context.Context, serverID, userID uuid.UUID, requiredPermissions ...domain.Permission) (bool, error) {
+	permissions, err := s.getUserPermissions(ctx, serverID, userID)
+	if err != nil {
+		return false, err
+	}
+
+	for _, required := range requiredPermissions {
+		for _, has := range permissions {
+			if has == required {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+func (s *ServerService) isServerAdmin(ctx context.Context, serverID, userID uuid.UUID) (bool, error) {
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return false, err
+	}
+
+	if server.OwnerID == userID {
+		return true, nil
+	}
+
+	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	if err != nil {
+		return false, err
+	}
+
+	roles, err := s.roleRepo.GetMemberRoles(ctx, member.ID)
+	if err != nil {
+		return false, err
+	}
+
+	return domain.HasManageServerAccess(roles), nil
+}
+
+func (s *ServerService) canManageChannels(ctx context.Context, serverID, userID uuid.UUID) (bool, error) {
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return false, err
+	}
+
+	if server.OwnerID == userID {
+		return true, nil
+	}
+
+	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	if err != nil {
+		return false, err
+	}
+
+	roles, err := s.roleRepo.GetMemberRoles(ctx, member.ID)
+	if err != nil {
+		return false, err
+	}
+
+	return domain.HasManageChannelsAccess(roles), nil
+}
+
+func (s *ServerService) checkMemberAccess(ctx context.Context, serverID, userID uuid.UUID) error {
+	if userID == uuid.Nil {
+		return domain.ErrNotMember
+	}
+
+	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return domain.ErrNotMember
+		}
+		return err
+	}
+
+	if member.IsBanned {
+		return domain.ErrMemberIsBanned
+	}
+
+	if member.IsMuted && !member.IsMuteExpired() {
+		return domain.ErrMemberIsMuted
+	}
+
+	return nil
+}
+
+// ───────────────────────────────────────────────────────────
 // Server CRUD
 // ───────────────────────────────────────────────────────────
 
 func (s *ServerService) CreateServer(ctx context.Context, name string, ownerID uuid.UUID, description *string) (*domain.Server, error) {
-	// 1. Проверяем существование владельца через Identity Service
-	if s.identityClient != nil {
-		exists, err := s.identityClient.UserExists(ctx, ownerID.String())
-		if err != nil {
-			// Fail-open: логируем ошибку, но продолжаем
-			fmt.Printf("⚠️ Identity service error: %v\n", err)
-		} else if !exists {
-			return nil, fmt.Errorf("owner not found: %s", ownerID)
-		}
+	if s.identityClient == nil {
+		return nil, fmt.Errorf("identity service client not initialized")
 	}
 
-	// 2. Создаём сервер
+	exists, err := s.identityClient.UserExists(ctx, ownerID.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify owner: %w", err)
+	}
+	if !exists {
+		return nil, fmt.Errorf("owner not found: %s", ownerID)
+	}
+
 	server, err := domain.NewServer(name, ownerID, description)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create server domain object: %w", err)
 	}
 
-	// 3. Сохраняем в БД (конфиги создаются триггером/репозиторием)
 	if err := s.serverRepo.Create(ctx, server); err != nil {
 		return nil, fmt.Errorf("failed to create server: %w", err)
 	}
 
-	// 4. Добавляем владельца как участника с дефолтной ролью
 	member, err := domain.NewServerMember(server.ID, ownerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create owner member: %w", err)
@@ -134,12 +246,10 @@ func (s *ServerService) CreateServer(ctx context.Context, name string, ownerID u
 }
 
 func (s *ServerService) GetServer(ctx context.Context, serverID, requesterID uuid.UUID) (*domain.Server, error) {
-	// 1. Проверяем, что запрашивающий — участник сервера
 	if err := s.checkMemberAccess(ctx, serverID, requesterID); err != nil {
 		return nil, err
 	}
 
-	// 2. Получаем сервер
 	server, err := s.serverRepo.GetByID(ctx, serverID)
 	if err != nil {
 		if err == repository.ErrNotFound {
@@ -152,7 +262,14 @@ func (s *ServerService) GetServer(ctx context.Context, serverID, requesterID uui
 }
 
 func (s *ServerService) UpdateServer(ctx context.Context, serverID, updaterID uuid.UUID, name *string, description *string) error {
-	// 1. Проверяем, что updater — владелец
+	isAdmin, err := s.isServerAdmin(ctx, serverID, updaterID)
+	if err != nil {
+		return err
+	}
+	if !isAdmin {
+		return domain.ErrPermissionDenied
+	}
+
 	server, err := s.serverRepo.GetByID(ctx, serverID)
 	if err != nil {
 		if err == repository.ErrNotFound {
@@ -161,17 +278,11 @@ func (s *ServerService) UpdateServer(ctx context.Context, serverID, updaterID uu
 		return err
 	}
 
-	if server.OwnerID != updaterID {
-		return domain.ErrNotServerOwner
-	}
-
-	// 2. Обновляем
 	server.Update(name, description)
 	return s.serverRepo.Update(ctx, server)
 }
 
 func (s *ServerService) DeleteServer(ctx context.Context, serverID, deleterID uuid.UUID) error {
-	// 1. Проверяем, что deleter — владелец
 	server, err := s.serverRepo.GetByID(ctx, serverID)
 	if err != nil {
 		if err == repository.ErrNotFound {
@@ -184,7 +295,6 @@ func (s *ServerService) DeleteServer(ctx context.Context, serverID, deleterID uu
 		return domain.ErrNotServerOwner
 	}
 
-	// 2. Soft delete
 	return s.serverRepo.SoftDelete(ctx, serverID)
 }
 
@@ -201,7 +311,7 @@ func (s *ServerService) ListUserServers(ctx context.Context, userID uuid.UUID, l
 		}
 		server, err := s.serverRepo.GetByID(ctx, member.ServerID)
 		if err != nil {
-			continue // Пропускаем удалённые серверы
+			continue
 		}
 		servers = append(servers, server)
 	}
@@ -225,16 +335,14 @@ func (s *ServerService) GetServerConfig(ctx context.Context, serverID uuid.UUID)
 }
 
 func (s *ServerService) UpdateServerConfig(ctx context.Context, serverID, updaterID uuid.UUID, config *domain.ServerConfig) error {
-	// 1. Проверяем, что updater — владелец
-	server, err := s.serverRepo.GetByID(ctx, serverID)
+	isAdmin, err := s.isServerAdmin(ctx, serverID, updaterID)
 	if err != nil {
 		return err
 	}
-	if server.OwnerID != updaterID {
-		return domain.ErrNotServerOwner
+	if !isAdmin {
+		return domain.ErrPermissionDenied
 	}
 
-	// 2. Валидируем и обновляем
 	if err := config.Validate(); err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
@@ -254,16 +362,14 @@ func (s *ServerService) GetModerationConfig(ctx context.Context, serverID uuid.U
 }
 
 func (s *ServerService) UpdateModerationConfig(ctx context.Context, serverID, updaterID uuid.UUID, config *domain.ModerationConfig) error {
-	// 1. Проверяем, что updater — владелец
-	server, err := s.serverRepo.GetByID(ctx, serverID)
+	isAdmin, err := s.isServerAdmin(ctx, serverID, updaterID)
 	if err != nil {
 		return err
 	}
-	if server.OwnerID != updaterID {
-		return domain.ErrNotServerOwner
+	if !isAdmin {
+		return domain.ErrPermissionDenied
 	}
 
-	// 2. Валидируем и обновляем
 	if err := config.Validate(); err != nil {
 		return fmt.Errorf("invalid moderation config: %w", err)
 	}
@@ -276,22 +382,23 @@ func (s *ServerService) UpdateModerationConfig(ctx context.Context, serverID, up
 // ───────────────────────────────────────────────────────────
 
 func (s *ServerService) AddMember(ctx context.Context, serverID, userID, addedBy uuid.UUID) error {
-	// 1. Проверяем, что addedBy — участник
 	if err := s.checkMemberAccess(ctx, serverID, addedBy); err != nil {
 		return err
 	}
 
-	if s.identityClient != nil {
-		exists, err := s.identityClient.UserExists(ctx, userID.String())
-		if err != nil {
-			fmt.Printf("⚠️ Identity service error for user %s: %v\n", userID, err)
-		} else if !exists {
-			return fmt.Errorf("user not found: %s", userID)
-		}
+	if s.identityClient == nil {
+		return fmt.Errorf("identity service client not initialized")
 	}
 
-	// 2. Проверяем, не существует ли уже участник
-	exists, err := s.memberRepo.Exists(ctx, serverID, userID)
+	exists, err := s.identityClient.UserExists(ctx, userID.String())
+	if err != nil {
+		return fmt.Errorf("failed to verify user: %w", err)
+	}
+	if !exists {
+		return fmt.Errorf("user not found: %s", userID)
+	}
+
+	exists, err = s.memberRepo.Exists(ctx, serverID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to check member exists: %w", err)
 	}
@@ -299,7 +406,6 @@ func (s *ServerService) AddMember(ctx context.Context, serverID, userID, addedBy
 		return domain.ErrAlreadyMember
 	}
 
-	// 3. Проверяем лимит участников
 	config, err := s.configRepo.GetServerConfig(ctx, serverID)
 	if err != nil {
 		return err
@@ -313,7 +419,6 @@ func (s *ServerService) AddMember(ctx context.Context, serverID, userID, addedBy
 		return domain.ErrMaxMembersReached
 	}
 
-	// 4. Создаём участника
 	member, err := domain.NewServerMember(serverID, userID)
 	if err != nil {
 		return err
@@ -322,12 +427,25 @@ func (s *ServerService) AddMember(ctx context.Context, serverID, userID, addedBy
 }
 
 func (s *ServerService) RemoveMember(ctx context.Context, serverID, userID, removedBy uuid.UUID) error {
-	// 1. Проверяем, что removedBy — участник
 	if err := s.checkMemberAccess(ctx, serverID, removedBy); err != nil {
 		return err
 	}
 
-	// 2. Получаем участника
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != removedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, removedBy, domain.PermKickMembers)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
+	}
+
 	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
 	if err != nil {
 		if err == repository.ErrNotFound {
@@ -336,16 +454,10 @@ func (s *ServerService) RemoveMember(ctx context.Context, serverID, userID, remo
 		return err
 	}
 
-	// 3. Нельзя удалить владельца
-	server, err := s.serverRepo.GetByID(ctx, serverID)
-	if err != nil {
-		return err
-	}
 	if member.UserID == server.OwnerID {
 		return domain.ErrCannotKickOwner
 	}
 
-	// 4. Удаляем
 	return s.memberRepo.Delete(ctx, member.ID)
 }
 
@@ -365,13 +477,26 @@ func (s *ServerService) ListMembers(ctx context.Context, serverID uuid.UUID, lim
 }
 
 func (s *ServerService) BanMember(ctx context.Context, serverID, userID, bannedBy uuid.UUID) error {
-	// 1. Проверяем права banning пользователя
 	if err := s.checkMemberAccess(ctx, serverID, bannedBy); err != nil {
 		return err
 	}
 
-	// 2. Получаем участника
-	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != bannedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, bannedBy, domain.PermBanMembers)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
+	}
+
+	targetMember, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
 	if err != nil {
 		if err == repository.ErrNotFound {
 			return domain.ErrNotMember
@@ -379,23 +504,32 @@ func (s *ServerService) BanMember(ctx context.Context, serverID, userID, bannedB
 		return err
 	}
 
-	// 3. Нельзя забанить владельца
-	server, err := s.serverRepo.GetByID(ctx, serverID)
-	if err != nil {
-		return err
-	}
-	if member.UserID == server.OwnerID {
+	if targetMember.UserID == server.OwnerID {
 		return domain.ErrCannotBanOwner
 	}
 
-	// 4. Баняем
-	member.Ban()
-	return s.memberRepo.Update(ctx, member)
+	targetMember.Ban()
+	return s.memberRepo.Update(ctx, targetMember)
 }
 
 func (s *ServerService) UnbanMember(ctx context.Context, serverID, userID, unbannedBy uuid.UUID) error {
 	if err := s.checkMemberAccess(ctx, serverID, unbannedBy); err != nil {
 		return err
+	}
+
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != unbannedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, unbannedBy, domain.PermBanMembers)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
 	}
 
 	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
@@ -412,12 +546,28 @@ func (s *ServerService) MuteMember(ctx context.Context, serverID, userID, mutedB
 		return err
 	}
 
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != mutedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, mutedBy, domain.PermMuteMembers)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
+	}
+
 	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
 	if err != nil {
-		if err == repository.ErrNotFound {
-			return domain.ErrNotMember
-		}
 		return err
+	}
+
+	if member.UserID == server.OwnerID {
+		return domain.ErrCannotBanOwner
 	}
 
 	member.Mute(duration)
@@ -429,20 +579,26 @@ func (s *ServerService) UnmuteMember(ctx context.Context, serverID, userID, unmu
 		return err
 	}
 
-	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	server, err := s.serverRepo.GetByID(ctx, serverID)
 	if err != nil {
-		if err == repository.ErrNotFound {
-			return domain.ErrNotMember
-		}
 		return err
 	}
 
-	server, err := s.serverRepo.GetByID(ctx, serverID)
-	if err == nil && member.UserID == server.OwnerID {
-		return domain.ErrCannotMuteOwner
+	if server.OwnerID != unmutedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, unmutedBy, domain.PermMuteMembers)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
 	}
 
-	// 4. Размучиваем
+	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
+	if err != nil {
+		return err
+	}
+
 	member.Unmute()
 	return s.memberRepo.Update(ctx, member)
 }
@@ -454,6 +610,21 @@ func (s *ServerService) UnmuteMember(ctx context.Context, serverID, userID, unmu
 func (s *ServerService) CreateRole(ctx context.Context, serverID uuid.UUID, name string, creatorID uuid.UUID) (*domain.ServerRole, error) {
 	if err := s.checkMemberAccess(ctx, serverID, creatorID); err != nil {
 		return nil, err
+	}
+
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	if server.OwnerID != creatorID {
+		hasPerm, err := s.hasPermission(ctx, serverID, creatorID, domain.PermManageRoles)
+		if err != nil {
+			return nil, err
+		}
+		if !hasPerm {
+			return nil, domain.ErrPermissionDenied
+		}
 	}
 
 	role, err := domain.NewServerRole(serverID, name, false)
@@ -473,6 +644,21 @@ func (s *ServerService) UpdateRole(ctx context.Context, serverID, roleID, update
 		return err
 	}
 
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != updaterID {
+		hasPerm, err := s.hasPermission(ctx, serverID, updaterID, domain.PermManageRoles)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
+	}
+
 	role, err := s.roleRepo.GetByID(ctx, roleID)
 	if err != nil {
 		return err
@@ -485,6 +671,21 @@ func (s *ServerService) UpdateRole(ctx context.Context, serverID, roleID, update
 func (s *ServerService) DeleteRole(ctx context.Context, serverID, roleID, deleterID uuid.UUID) error {
 	if err := s.checkMemberAccess(ctx, serverID, deleterID); err != nil {
 		return err
+	}
+
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != deleterID {
+		hasPerm, err := s.hasPermission(ctx, serverID, deleterID, domain.PermManageRoles)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
 	}
 
 	role, err := s.roleRepo.GetByID(ctx, roleID)
@@ -504,12 +705,70 @@ func (s *ServerService) AssignRole(ctx context.Context, serverID, memberID, role
 		return err
 	}
 
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != assignedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, assignedBy, domain.PermManageRoles)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
+	}
+
+	role, err := s.roleRepo.GetByID(ctx, roleID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != assignedBy {
+		assignedByMember, err := s.memberRepo.GetByServerAndUser(ctx, serverID, assignedBy)
+		if err != nil {
+			return err
+		}
+
+		assignedByRoles, err := s.roleRepo.GetMemberRoles(ctx, assignedByMember.ID)
+		if err != nil {
+			return err
+		}
+
+		maxPosition := 0
+		for _, r := range assignedByRoles {
+			if r.Position > maxPosition {
+				maxPosition = r.Position
+			}
+		}
+
+		if role.Position > maxPosition {
+			return domain.ErrPermissionDenied
+		}
+	}
+
 	return s.roleRepo.AssignToMember(ctx, memberID, roleID)
 }
 
 func (s *ServerService) RemoveRole(ctx context.Context, serverID, memberID, roleID uuid.UUID, removedBy uuid.UUID) error {
 	if err := s.checkMemberAccess(ctx, serverID, removedBy); err != nil {
 		return err
+	}
+
+	server, err := s.serverRepo.GetByID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
+	if server.OwnerID != removedBy {
+		hasPerm, err := s.hasPermission(ctx, serverID, removedBy, domain.PermManageRoles)
+		if err != nil {
+			return err
+		}
+		if !hasPerm {
+			return domain.ErrPermissionDenied
+		}
 	}
 
 	return s.roleRepo.RemoveFromMember(ctx, memberID, roleID)
@@ -524,12 +783,18 @@ func (s *ServerService) GetMemberRoles(ctx context.Context, memberID uuid.UUID) 
 // ───────────────────────────────────────────────────────────
 
 func (s *ServerService) CreateServerChat(ctx context.Context, serverID uuid.UUID, name string, createdBy uuid.UUID) (*repository.ServerChat, error) {
-	// 1. Проверяем доступ
 	if err := s.checkMemberAccess(ctx, serverID, createdBy); err != nil {
 		return nil, err
 	}
 
-	// 2. Проверяем лимит каналов
+	canManage, err := s.canManageChannels(ctx, serverID, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	if !canManage {
+		return nil, domain.ErrPermissionDenied
+	}
+
 	config, err := s.configRepo.GetServerConfig(ctx, serverID)
 	if err != nil {
 		return nil, err
@@ -543,36 +808,35 @@ func (s *ServerService) CreateServerChat(ctx context.Context, serverID uuid.UUID
 		return nil, domain.ErrMaxChannelsReached
 	}
 
-	// 3. Создаём чат через Chats Service
-	var chatID uuid.UUID
-	if s.chatsClient != nil {
-		id, err := s.chatsClient.CreateServerChat(ctx, serverID.String(), name, createdBy.String())
-		if err != nil {
-			return nil, fmt.Errorf("failed to create chat in chats service: %w", err)
-		}
-		chatID, _ = uuid.Parse(id)
-	} else {
-		// Fallback: генерируем ID локально (для тестов)
-		chatID = uuid.New()
+	if s.chatsClient == nil {
+		return nil, fmt.Errorf("chats service client not initialized")
 	}
 
-	// 4. Сохраняем связь
-	if err := s.chatRepo.AddChat(ctx, serverID, chatID, name); err != nil {
-		return nil, err
+	chatID, err := s.chatsClient.CreateServerChat(ctx, serverID.String(), name, createdBy.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to create chat in chats service: %w", err)
+	}
+
+	parsedChatID, err := uuid.Parse(chatID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid chat ID from chats service: %w", err)
+	}
+
+	if err := s.chatRepo.AddChat(ctx, serverID, parsedChatID, name); err != nil {
+		return nil, fmt.Errorf("failed to save chat relation: %w", err)
 	}
 
 	return &repository.ServerChat{
 		ServerID:  serverID,
-		ChatID:    chatID,
+		ChatID:    parsedChatID,
 		Name:      name,
 		Position:  0,
 		CreatedAt: time.Now(),
 	}, nil
 }
 
-func (s *ServerService) ListServerChats(ctx context.Context, serverID uuid.UUID) ([]*repository.ServerChat, error) {
-	err := s.checkMemberAccess(ctx, serverID, uuid.Nil) // Любой участник может видеть чаты
-	if err != nil {
+func (s *ServerService) ListServerChats(ctx context.Context, serverID, requesterID uuid.UUID) ([]*repository.ServerChat, error) {
+	if err := s.checkMemberAccess(ctx, serverID, requesterID); err != nil {
 		return nil, err
 	}
 
@@ -584,6 +848,14 @@ func (s *ServerService) DeleteServerChat(ctx context.Context, serverID, chatID, 
 		return err
 	}
 
+	canManage, err := s.canManageChannels(ctx, serverID, deleterID)
+	if err != nil {
+		return err
+	}
+	if !canManage {
+		return domain.ErrPermissionDenied
+	}
+
 	return s.chatRepo.RemoveChat(ctx, serverID, chatID)
 }
 
@@ -592,43 +864,38 @@ func (s *ServerService) DeleteServerChat(ctx context.Context, serverID, chatID, 
 // ───────────────────────────────────────────────────────────
 
 func (s *ServerService) CheckMessageModeration(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, text string) (*domain.ModerationResult, error) {
-	// 1. Получаем конфиг модерации
 	config, err := s.configRepo.GetModerationConfig(ctx, serverID)
 	if err != nil {
-		// Если конфига нет — пропускаем модерацию
-		return &domain.ModerationResult{Allowed: true}, nil
+		return nil, fmt.Errorf("failed to get moderation config: %w", err)
 	}
 
-	// 2. Проверяем, включена ли модерация
 	serverConfig, err := s.configRepo.GetServerConfig(ctx, serverID)
 	if err != nil {
-		return &domain.ModerationResult{Allowed: true}, nil
+		return nil, fmt.Errorf("failed to get server config: %w", err)
 	}
 	if !serverConfig.ModerationEnabled {
 		return &domain.ModerationResult{Allowed: true}, nil
 	}
 
-	// 3. Отправляем в Moderation Service
 	if s.moderationClient == nil {
-		// Нет клиента — пропускаем
-		return &domain.ModerationResult{Allowed: true}, nil
+		return nil, fmt.Errorf("moderation service client not initialized")
 	}
 
 	result, err := s.moderationClient.CheckText(ctx, text, config)
 	if err != nil {
-		// Fail-open: ошибка ML — пропускаем сообщение
-		fmt.Printf("⚠️ Moderation service error: %v\n", err)
-		return &domain.ModerationResult{Allowed: true, Fallback: true}, nil
+		return nil, fmt.Errorf("moderation check failed: %w", err)
 	}
 
-	// 4. Если есть нарушения — логируем и выполняем действия
 	if !result.Allowed {
 		for _, violation := range result.Violations {
 			action := config.GetActionForFilter(string(violation.Type))
 			if action != domain.ActionNone {
-				_ = s.LogViolation(ctx, serverID, userID, messageID, &text, violation.Type, action)
+				if logErr := s.LogViolation(ctx, serverID, userID, messageID, &text, violation.Type, action); logErr != nil {
+					fmt.Printf("⚠️ Failed to log violation: %v\n", logErr)
+				}
 			}
 		}
+		return result, nil
 	}
 
 	return result, nil
@@ -637,33 +904,4 @@ func (s *ServerService) CheckMessageModeration(ctx context.Context, serverID, us
 func (s *ServerService) LogViolation(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, messageContent *string, violationType domain.ViolationType, action domain.ModerationAction) error {
 	violation := domain.NewModerationViolation(serverID, userID, messageID, messageContent, violationType, action)
 	return s.moderationRepo.Create(ctx, violation)
-}
-
-// ───────────────────────────────────────────────────────────
-// Helpers
-// ───────────────────────────────────────────────────────────
-
-// checkMemberAccess проверяет, что пользователь — участник сервера
-func (s *ServerService) checkMemberAccess(ctx context.Context, serverID, userID uuid.UUID) error {
-	if userID == uuid.Nil {
-		return domain.ErrNotMember
-	}
-
-	member, err := s.memberRepo.GetByServerAndUser(ctx, serverID, userID)
-	if err != nil {
-		if err == repository.ErrNotFound {
-			return domain.ErrNotMember
-		}
-		return err
-	}
-
-	if member.IsBanned {
-		return domain.ErrMemberIsBanned
-	}
-
-	if member.IsMuted && !member.IsMuteExpired() {
-		return domain.ErrMemberIsMuted
-	}
-
-	return nil
 }
