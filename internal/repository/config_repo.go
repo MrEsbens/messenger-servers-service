@@ -117,7 +117,7 @@ func (r *postgresConfigRepository) CreateServerConfig(ctx context.Context, confi
 func (r *postgresConfigRepository) GetModerationConfig(ctx context.Context, serverID uuid.UUID) (*domain.ModerationConfig, error) {
 	query := `
 		SELECT id, server_id, profanity_filter_action, toxicity_filter_action, nsfw_text_filter_action, 
-		       political_filter_action, hate_speech_filter_action, created_at, updated_at
+		    hate_speech_filter_action, created_at, updated_at
 		FROM moderation_configs
 		WHERE server_id = $1
 	`
@@ -129,7 +129,6 @@ func (r *postgresConfigRepository) GetModerationConfig(ctx context.Context, serv
 		&config.ProfanityFilterAction,
 		&config.ToxicityFilterAction,
 		&config.NsfwTextFilterAction,
-		&config.PoliticalFilterAction,
 		&config.HateSpeechFilterAction,
 		&config.CreatedAt,
 		&config.UpdatedAt,
@@ -149,7 +148,7 @@ func (r *postgresConfigRepository) UpdateModerationConfig(ctx context.Context, c
 	query := `
 		UPDATE moderation_configs
 		SET profanity_filter_action = $2, toxicity_filter_action = $3, nsfw_text_filter_action = $4,
-		    political_filter_action = $5, hate_speech_filter_action = $6, updated_at = $7
+		    hate_speech_filter_action = $5, updated_at = $6
 		WHERE server_id = $1
 	`
 
@@ -158,7 +157,6 @@ func (r *postgresConfigRepository) UpdateModerationConfig(ctx context.Context, c
 		config.ProfanityFilterAction,
 		config.ToxicityFilterAction,
 		config.NsfwTextFilterAction,
-		config.PoliticalFilterAction,
 		config.HateSpeechFilterAction,
 		config.UpdatedAt,
 	)
@@ -180,8 +178,8 @@ func (r *postgresConfigRepository) UpdateModerationConfig(ctx context.Context, c
 func (r *postgresConfigRepository) CreateModerationConfig(ctx context.Context, config *domain.ModerationConfig) error {
 	query := `
 		INSERT INTO moderation_configs (id, server_id, profanity_filter_action, toxicity_filter_action, 
-		                                nsfw_text_filter_action, political_filter_action, hate_speech_filter_action)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		                                nsfw_text_filter_action, hate_speech_filter_action)
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
@@ -190,7 +188,6 @@ func (r *postgresConfigRepository) CreateModerationConfig(ctx context.Context, c
 		config.ProfanityFilterAction,
 		config.ToxicityFilterAction,
 		config.NsfwTextFilterAction,
-		config.PoliticalFilterAction,
 		config.HateSpeechFilterAction,
 	)
 

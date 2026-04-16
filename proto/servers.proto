@@ -91,8 +91,7 @@ message ModerationConfigDTO {
   string profanity_filter_action = 2;
   string toxicity_filter_action = 3;
   string nsfw_text_filter_action = 4;
-  string political_filter_action = 5;
-  string hate_speech_filter_action = 6;
+  string hate_speech_filter_action = 5;
 }
 
 message GetModerationConfigRequest {
@@ -105,8 +104,7 @@ message UpdateModerationConfigRequest {
   optional string profanity_filter_action = 3;
   optional string toxicity_filter_action = 4;
   optional string nsfw_text_filter_action = 5;
-  optional string political_filter_action = 6;
-  optional string hate_speech_filter_action = 7;
+  optional string hate_speech_filter_action = 6;
 }
 
 // ─── Members ─────────────────────────────────────────────────────────────────

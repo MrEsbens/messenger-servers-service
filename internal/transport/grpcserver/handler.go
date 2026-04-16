@@ -275,7 +275,6 @@ func (h *Handler) UpdateModerationConfig(ctx context.Context, req *serversv1.Upd
 		ProfanityFilterAction:  unpackModerationAction(req.ProfanityFilterAction),
 		ToxicityFilterAction:   unpackModerationAction(req.ToxicityFilterAction),
 		NsfwTextFilterAction:   unpackModerationAction(req.NsfwTextFilterAction),
-		PoliticalFilterAction:  unpackModerationAction(req.PoliticalFilterAction),
 		HateSpeechFilterAction: unpackModerationAction(req.HateSpeechFilterAction),
 		UpdatedAt:              time.Now(),
 	}
@@ -793,7 +792,6 @@ func moderationConfigToDTO(c *domain.ModerationConfig) *serversv1.ModerationConf
 		ProfanityFilterAction:  string(c.ProfanityFilterAction),
 		ToxicityFilterAction:   string(c.ToxicityFilterAction),
 		NsfwTextFilterAction:   string(c.NsfwTextFilterAction),
-		PoliticalFilterAction:  string(c.PoliticalFilterAction),
 		HateSpeechFilterAction: string(c.HateSpeechFilterAction),
 	}
 }

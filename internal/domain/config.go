@@ -89,7 +89,6 @@ type ModerationConfig struct {
 	ProfanityFilterAction  ModerationAction // Мат/оскорбления
 	ToxicityFilterAction   ModerationAction // Токсичность (ML)
 	NsfwTextFilterAction   ModerationAction // 18+ текст (ML)
-	PoliticalFilterAction  ModerationAction // Политика (ML)
 	HateSpeechFilterAction ModerationAction // Хейт-спич (ML)
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
@@ -102,7 +101,6 @@ func NewModerationConfig(serverID uuid.UUID) *ModerationConfig {
 		ProfanityFilterAction:  ActionNone,
 		ToxicityFilterAction:   ActionNone,
 		NsfwTextFilterAction:   ActionNone,
-		PoliticalFilterAction:  ActionNone,
 		HateSpeechFilterAction: ActionNone,
 		CreatedAt:              time.Now(),
 		UpdatedAt:              time.Now(),
@@ -113,7 +111,6 @@ func (c *ModerationConfig) Update(
 	profanityAction *ModerationAction,
 	toxicityAction *ModerationAction,
 	nsfwAction *ModerationAction,
-	politicalAction *ModerationAction,
 	hateSpeechAction *ModerationAction,
 ) {
 	if profanityAction != nil {
@@ -124,9 +121,6 @@ func (c *ModerationConfig) Update(
 	}
 	if nsfwAction != nil {
 		c.NsfwTextFilterAction = *nsfwAction
-	}
-	if politicalAction != nil {
-		c.PoliticalFilterAction = *politicalAction
 	}
 	if hateSpeechAction != nil {
 		c.HateSpeechFilterAction = *hateSpeechAction
@@ -142,8 +136,6 @@ func (c *ModerationConfig) GetActionForFilter(filterType string) ModerationActio
 		return c.ToxicityFilterAction
 	case "nsfw_text":
 		return c.NsfwTextFilterAction
-	case "political":
-		return c.PoliticalFilterAction
 	case "hate_speech":
 		return c.HateSpeechFilterAction
 	default:
@@ -155,7 +147,6 @@ func (c *ModerationConfig) IsEnabled() bool {
 	return c.ProfanityFilterAction != ActionNone ||
 		c.ToxicityFilterAction != ActionNone ||
 		c.NsfwTextFilterAction != ActionNone ||
-		c.PoliticalFilterAction != ActionNone ||
 		c.HateSpeechFilterAction != ActionNone
 }
 
@@ -168,7 +159,6 @@ func (c *ModerationConfig) Validate() error {
 		c.ProfanityFilterAction,
 		c.ToxicityFilterAction,
 		c.NsfwTextFilterAction,
-		c.PoliticalFilterAction,
 		c.HateSpeechFilterAction,
 	}
 

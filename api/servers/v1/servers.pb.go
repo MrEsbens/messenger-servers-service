@@ -713,8 +713,7 @@ type ModerationConfigDTO struct {
 	ProfanityFilterAction  string                 `protobuf:"bytes,2,opt,name=profanity_filter_action,json=profanityFilterAction,proto3" json:"profanity_filter_action,omitempty"`
 	ToxicityFilterAction   string                 `protobuf:"bytes,3,opt,name=toxicity_filter_action,json=toxicityFilterAction,proto3" json:"toxicity_filter_action,omitempty"`
 	NsfwTextFilterAction   string                 `protobuf:"bytes,4,opt,name=nsfw_text_filter_action,json=nsfwTextFilterAction,proto3" json:"nsfw_text_filter_action,omitempty"`
-	PoliticalFilterAction  string                 `protobuf:"bytes,5,opt,name=political_filter_action,json=politicalFilterAction,proto3" json:"political_filter_action,omitempty"`
-	HateSpeechFilterAction string                 `protobuf:"bytes,6,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3" json:"hate_speech_filter_action,omitempty"`
+	HateSpeechFilterAction string                 `protobuf:"bytes,5,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3" json:"hate_speech_filter_action,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -777,13 +776,6 @@ func (x *ModerationConfigDTO) GetNsfwTextFilterAction() string {
 	return ""
 }
 
-func (x *ModerationConfigDTO) GetPoliticalFilterAction() string {
-	if x != nil {
-		return x.PoliticalFilterAction
-	}
-	return ""
-}
-
 func (x *ModerationConfigDTO) GetHateSpeechFilterAction() string {
 	if x != nil {
 		return x.HateSpeechFilterAction
@@ -842,8 +834,7 @@ type UpdateModerationConfigRequest struct {
 	ProfanityFilterAction  *string                `protobuf:"bytes,3,opt,name=profanity_filter_action,json=profanityFilterAction,proto3,oneof" json:"profanity_filter_action,omitempty"`
 	ToxicityFilterAction   *string                `protobuf:"bytes,4,opt,name=toxicity_filter_action,json=toxicityFilterAction,proto3,oneof" json:"toxicity_filter_action,omitempty"`
 	NsfwTextFilterAction   *string                `protobuf:"bytes,5,opt,name=nsfw_text_filter_action,json=nsfwTextFilterAction,proto3,oneof" json:"nsfw_text_filter_action,omitempty"`
-	PoliticalFilterAction  *string                `protobuf:"bytes,6,opt,name=political_filter_action,json=politicalFilterAction,proto3,oneof" json:"political_filter_action,omitempty"`
-	HateSpeechFilterAction *string                `protobuf:"bytes,7,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3,oneof" json:"hate_speech_filter_action,omitempty"`
+	HateSpeechFilterAction *string                `protobuf:"bytes,6,opt,name=hate_speech_filter_action,json=hateSpeechFilterAction,proto3,oneof" json:"hate_speech_filter_action,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -909,13 +900,6 @@ func (x *UpdateModerationConfigRequest) GetToxicityFilterAction() string {
 func (x *UpdateModerationConfigRequest) GetNsfwTextFilterAction() string {
 	if x != nil && x.NsfwTextFilterAction != nil {
 		return *x.NsfwTextFilterAction
-	}
-	return ""
-}
-
-func (x *UpdateModerationConfigRequest) GetPoliticalFilterAction() string {
-	if x != nil && x.PoliticalFilterAction != nil {
-		return *x.PoliticalFilterAction
 	}
 	return ""
 }
@@ -2423,29 +2407,26 @@ const file_servers_proto_rawDesc = "" +
 	"\f_max_membersB\x0f\n" +
 	"\r_max_channelsB\x1c\n" +
 	"\x1a_default_notification_modeB\x15\n" +
-	"\x13_moderation_enabled\"\xca\x02\n" +
+	"\x13_moderation_enabled\"\x92\x02\n" +
 	"\x13ModerationConfigDTO\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x126\n" +
 	"\x17profanity_filter_action\x18\x02 \x01(\tR\x15profanityFilterAction\x124\n" +
 	"\x16toxicity_filter_action\x18\x03 \x01(\tR\x14toxicityFilterAction\x125\n" +
-	"\x17nsfw_text_filter_action\x18\x04 \x01(\tR\x14nsfwTextFilterAction\x126\n" +
-	"\x17political_filter_action\x18\x05 \x01(\tR\x15politicalFilterAction\x129\n" +
-	"\x19hate_speech_filter_action\x18\x06 \x01(\tR\x16hateSpeechFilterAction\"9\n" +
+	"\x17nsfw_text_filter_action\x18\x04 \x01(\tR\x14nsfwTextFilterAction\x129\n" +
+	"\x19hate_speech_filter_action\x18\x05 \x01(\tR\x16hateSpeechFilterAction\"9\n" +
 	"\x1aGetModerationConfigRequest\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\"\x99\x04\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\"\xc0\x03\n" +
 	"\x1dUpdateModerationConfigRequest\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\x12\x1d\n" +
 	"\n" +
 	"updater_id\x18\x02 \x01(\tR\tupdaterId\x12;\n" +
 	"\x17profanity_filter_action\x18\x03 \x01(\tH\x00R\x15profanityFilterAction\x88\x01\x01\x129\n" +
 	"\x16toxicity_filter_action\x18\x04 \x01(\tH\x01R\x14toxicityFilterAction\x88\x01\x01\x12:\n" +
-	"\x17nsfw_text_filter_action\x18\x05 \x01(\tH\x02R\x14nsfwTextFilterAction\x88\x01\x01\x12;\n" +
-	"\x17political_filter_action\x18\x06 \x01(\tH\x03R\x15politicalFilterAction\x88\x01\x01\x12>\n" +
-	"\x19hate_speech_filter_action\x18\a \x01(\tH\x04R\x16hateSpeechFilterAction\x88\x01\x01B\x1a\n" +
+	"\x17nsfw_text_filter_action\x18\x05 \x01(\tH\x02R\x14nsfwTextFilterAction\x88\x01\x01\x12>\n" +
+	"\x19hate_speech_filter_action\x18\x06 \x01(\tH\x03R\x16hateSpeechFilterAction\x88\x01\x01B\x1a\n" +
 	"\x18_profanity_filter_actionB\x19\n" +
 	"\x17_toxicity_filter_actionB\x1a\n" +
-	"\x18_nsfw_text_filter_actionB\x1a\n" +
-	"\x18_political_filter_actionB\x1c\n" +
+	"\x18_nsfw_text_filter_actionB\x1c\n" +
 	"\x1a_hate_speech_filter_action\"\x9f\x02\n" +
 	"\tMemberDTO\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +

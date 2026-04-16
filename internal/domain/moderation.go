@@ -12,14 +12,13 @@ const (
 	ViolationProfanity  ViolationType = "profanity"
 	ViolationToxicity   ViolationType = "toxicity"
 	ViolationNsfwText   ViolationType = "nsfw_text"
-	ViolationPolitical  ViolationType = "political"
 	ViolationHateSpeech ViolationType = "hate_speech"
 )
 
 func (v ViolationType) IsValid() bool {
 	switch v {
 	case ViolationProfanity, ViolationToxicity, ViolationNsfwText,
-		ViolationPolitical, ViolationHateSpeech:
+		ViolationHateSpeech:
 		return true
 	}
 	return false

@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS moderation_configs (
     profanity_filter_action VARCHAR(20) DEFAULT 'none',    -- Мат/оскорбления
     toxicity_filter_action VARCHAR(20) DEFAULT 'none',     -- Токсичность (ML)
     nsfw_text_filter_action VARCHAR(20) DEFAULT 'none',    -- 18+ текст (ML)
-    political_filter_action VARCHAR(20) DEFAULT 'none',    -- Политика (ML)
     hate_speech_filter_action VARCHAR(20) DEFAULT 'none',  -- Хейт-спич (ML)
     
     created_at TIMESTAMPTZ DEFAULT NOW(),
