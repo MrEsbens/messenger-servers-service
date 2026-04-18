@@ -8,6 +8,7 @@ import (
 	"github.com/MrEsbens/messenger-servers-service/internal/domain"
 	"github.com/MrEsbens/messenger-servers-service/internal/repository"
 	repoMocks "github.com/MrEsbens/messenger-servers-service/internal/repository/mocks"
+	"github.com/MrEsbens/messenger-servers-service/internal/repository/redis/mocks"
 	"github.com/MrEsbens/messenger-servers-service/internal/service"
 	clientMocks "github.com/MrEsbens/messenger-servers-service/internal/transport/grpcclient/mocks"
 	"github.com/google/uuid"
@@ -22,34 +23,31 @@ func newTestService(t *testing.T) (
 	*repoMocks.MockMemberRepository,
 	*repoMocks.MockRoleRepository,
 	*repoMocks.MockChatRepository,
-	*repoMocks.MockModerationRepository,
 	*clientMocks.MockIdentityClient,
 	*clientMocks.MockChatsClient,
-	*clientMocks.MockModerationClient,
+	*mocks.MockCacheRepository,
 ) {
 	serverRepo := repoMocks.NewMockServerRepository(t)
 	configRepo := repoMocks.NewMockConfigRepository(t)
 	memberRepo := repoMocks.NewMockMemberRepository(t)
 	roleRepo := repoMocks.NewMockRoleRepository(t)
-	moderationRepo := repoMocks.NewMockModerationRepository(t)
 	chatRepo := repoMocks.NewMockChatRepository(t)
 	identityClient := clientMocks.NewMockIdentityClient(t)
 	chatsClient := clientMocks.NewMockChatsClient(t)
-	moderationClient := clientMocks.NewMockModerationClient(t)
+	cacheRepo := mocks.NewMockCacheRepository(t)
 
 	svc := service.NewServerService(
 		serverRepo,
 		configRepo,
 		memberRepo,
 		roleRepo,
-		moderationRepo,
 		chatRepo,
 		identityClient,
 		chatsClient,
-		moderationClient,
+		cacheRepo,
 	)
 
-	return svc, serverRepo, configRepo, memberRepo, roleRepo, chatRepo, moderationRepo, identityClient, chatsClient, moderationClient
+	return svc, serverRepo, configRepo, memberRepo, roleRepo, chatRepo, identityClient, chatsClient, cacheRepo
 }
 
 func newTestServer(ownerID uuid.UUID) *domain.Server {
@@ -87,10 +85,14 @@ func newTestRole(serverID uuid.UUID, name string, permissions []string) *domain.
 	}
 }
 
+// ───────────────────────────────────────────────────────────
+// Server CRUD Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_CreateServer_Success(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, identityClient, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, identityClient, _, _ := newTestService(t)
 
 	ownerID := uuid.New()
 
@@ -119,7 +121,7 @@ func TestServerService_CreateServer_Success(t *testing.T) {
 func TestServerService_CreateServer_IdentityServiceReturnsNotFound(t *testing.T) {
 	t.Parallel()
 
-	svc, _, _, _, _, _, _, identityClient, _, _ := newTestService(t)
+	svc, _, _, _, _, _, identityClient, _, _ := newTestService(t)
 
 	ownerID := uuid.New()
 
@@ -136,7 +138,7 @@ func TestServerService_CreateServer_IdentityServiceReturnsNotFound(t *testing.T)
 func TestServerService_CreateServer_IdentityServiceError(t *testing.T) {
 	t.Parallel()
 
-	svc, _, _, _, _, _, _, identityClient, _, _ := newTestService(t)
+	svc, _, _, _, _, _, identityClient, _, _ := newTestService(t)
 
 	ownerID := uuid.New()
 
@@ -153,7 +155,7 @@ func TestServerService_CreateServer_IdentityServiceError(t *testing.T) {
 func TestServerService_CreateServer_InvalidName(t *testing.T) {
 	t.Parallel()
 
-	svc, _, _, _, _, _, _, identityClient, _, _ := newTestService(t)
+	svc, _, _, _, _, _, identityClient, _, _ := newTestService(t)
 
 	ownerID := uuid.New()
 
@@ -167,10 +169,14 @@ func TestServerService_CreateServer_InvalidName(t *testing.T) {
 	identityClient.AssertExpectations(t)
 }
 
+// ───────────────────────────────────────────────────────────
+// Config Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_UpdateServerConfig_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, _, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, configRepo, _, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -202,7 +208,7 @@ func TestServerService_UpdateServerConfig_OwnerSuccess(t *testing.T) {
 func TestServerService_UpdateServerConfig_AdminWithManageServer(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, configRepo, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -246,7 +252,7 @@ func TestServerService_UpdateServerConfig_AdminWithManageServer(t *testing.T) {
 func TestServerService_UpdateServerConfig_NoPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, configRepo, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -287,7 +293,7 @@ func TestServerService_UpdateServerConfig_NoPermission(t *testing.T) {
 func TestServerService_UpdateServerConfig_ServerNotFound(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, _, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, _, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -302,10 +308,14 @@ func TestServerService_UpdateServerConfig_ServerNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "not found")
 }
 
+// ───────────────────────────────────────────────────────────
+// Member Management Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_BanMember_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -317,12 +327,8 @@ func TestServerService_BanMember_OwnerSuccess(t *testing.T) {
 	targetMember := newTestMember(serverID, targetID)
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
-	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Update", mock.Anything, mock.MatchedBy(func(m *domain.ServerMember) bool {
 		return m.IsBanned
 	})).Return(nil)
@@ -338,7 +344,7 @@ func TestServerService_BanMember_OwnerSuccess(t *testing.T) {
 func TestServerService_BanMember_WithBanPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -356,12 +362,9 @@ func TestServerService_BanMember_WithBanPermission(t *testing.T) {
 	modRole := newTestRole(serverID, "Moderator", []string{"ban_members"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Update", mock.Anything, mock.MatchedBy(func(m *domain.ServerMember) bool {
 		return m.IsBanned
 	})).Return(nil)
@@ -378,7 +381,7 @@ func TestServerService_BanMember_WithBanPermission(t *testing.T) {
 func TestServerService_BanMember_NoPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -394,7 +397,6 @@ func TestServerService_BanMember_NoPermission(t *testing.T) {
 	userRole := newTestRole(serverID, "Member", []string{"send_messages"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(userMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, userMember.ID).Return([]*domain.ServerRole{userRole}, nil)
 
@@ -409,7 +411,7 @@ func TestServerService_BanMember_NoPermission(t *testing.T) {
 func TestServerService_BanMember_CannotBanOwner(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -420,9 +422,6 @@ func TestServerService_BanMember_CannotBanOwner(t *testing.T) {
 	ownerMember := newTestMember(serverID, ownerID)
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
-	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
 
 	err := svc.BanMember(context.Background(), serverID, ownerID, ownerID)
@@ -431,10 +430,14 @@ func TestServerService_BanMember_CannotBanOwner(t *testing.T) {
 	assert.Contains(t, err.Error(), "cannot ban server owner")
 }
 
+// ───────────────────────────────────────────────────────────
+// Server Chat Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_CreateServerChat_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, _, chatsClient, _ := newTestService(t)
+	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, chatsClient, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -450,15 +453,10 @@ func TestServerService_CreateServerChat_OwnerSuccess(t *testing.T) {
 	}
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(config, nil)
-
 	chatRepo.On("GetByServer", mock.Anything, serverID).Return([]*repository.ServerChat{}, nil)
-
 	chatsClient.On("CreateServerChat", mock.Anything, serverID.String(), "general", ownerID.String()).Return(chatID, nil)
-
 	chatRepo.On("AddChat", mock.Anything, serverID, parsedChatID, "general").Return(nil)
 
 	result, err := svc.CreateServerChat(context.Background(), serverID, "general", ownerID)
@@ -476,7 +474,7 @@ func TestServerService_CreateServerChat_OwnerSuccess(t *testing.T) {
 func TestServerService_CreateServerChat_NoManageChannelsPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -491,7 +489,6 @@ func TestServerService_CreateServerChat_NoManageChannelsPermission(t *testing.T)
 	userRole := newTestRole(serverID, "Member", []string{"send_messages"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(userMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, userMember.ID).Return([]*domain.ServerRole{userRole}, nil)
 
@@ -505,7 +502,7 @@ func TestServerService_CreateServerChat_NoManageChannelsPermission(t *testing.T)
 func TestServerService_CreateServerChat_ChatsServiceDown(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, _, chatsClient, _ := newTestService(t)
+	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, chatsClient, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -519,13 +516,9 @@ func TestServerService_CreateServerChat_ChatsServiceDown(t *testing.T) {
 	}
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(config, nil)
-
 	chatRepo.On("GetByServer", mock.Anything, serverID).Return([]*repository.ServerChat{}, nil)
-
 	chatsClient.On("CreateServerChat", mock.Anything, serverID.String(), "general", ownerID.String()).Return("", assert.AnError)
 
 	result, err := svc.CreateServerChat(context.Background(), serverID, "general", ownerID)
@@ -540,7 +533,7 @@ func TestServerService_CreateServerChat_ChatsServiceDown(t *testing.T) {
 func TestServerService_CreateServerChat_MaxChannelsReached(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, _, _, _ := newTestService(t)
+	svc, serverRepo, configRepo, memberRepo, _, chatRepo, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -559,11 +552,8 @@ func TestServerService_CreateServerChat_MaxChannelsReached(t *testing.T) {
 	}
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(config, nil)
-
 	chatRepo.On("GetByServer", mock.Anything, serverID).Return(existingChats, nil)
 
 	result, err := svc.CreateServerChat(context.Background(), serverID, "new-channel", ownerID)
@@ -573,10 +563,14 @@ func TestServerService_CreateServerChat_MaxChannelsReached(t *testing.T) {
 	assert.Nil(t, result)
 }
 
+// ───────────────────────────────────────────────────────────
+// Role Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_AssignRole_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -592,11 +586,8 @@ func TestServerService_AssignRole_OwnerSuccess(t *testing.T) {
 	role := newTestRole(serverID, "Helper", []string{"send_messages"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	roleRepo.On("GetByID", mock.Anything, roleID).Return(role, nil)
-
 	roleRepo.On("AssignToMember", mock.Anything, targetMemberID, roleID).Return(nil)
 
 	err := svc.AssignRole(context.Background(), serverID, targetMemberID, roleID, ownerID)
@@ -611,7 +602,7 @@ func TestServerService_AssignRole_OwnerSuccess(t *testing.T) {
 func TestServerService_AssignRole_WithManageRolesPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -632,12 +623,9 @@ func TestServerService_AssignRole_WithManageRolesPermission(t *testing.T) {
 	targetRole := newTestRole(serverID, "Helper", []string{"send_messages"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, adminID).Return(adminMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, adminMember.ID).Return([]*domain.ServerRole{adminRole}, nil)
-
 	roleRepo.On("GetByID", mock.Anything, roleID).Return(targetRole, nil)
-
 	roleRepo.On("AssignToMember", mock.Anything, targetMemberID, roleID).Return(nil)
 
 	err := svc.AssignRole(context.Background(), serverID, targetMemberID, roleID, adminID)
@@ -648,7 +636,7 @@ func TestServerService_AssignRole_WithManageRolesPermission(t *testing.T) {
 func TestServerService_AssignRole_NoManageRolesPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -663,10 +651,7 @@ func TestServerService_AssignRole_NoManageRolesPermission(t *testing.T) {
 
 	userRole := newTestRole(serverID, "Member", []string{"send_messages"})
 
-	// targetRole := newTestRole(serverID, "Helper", []string{"send_messages"})
-
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(userMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, userMember.ID).Return([]*domain.ServerRole{userRole}, nil)
 
@@ -681,7 +666,7 @@ func TestServerService_AssignRole_NoManageRolesPermission(t *testing.T) {
 func TestServerService_AssignRole_HierarchyViolation(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -703,10 +688,8 @@ func TestServerService_AssignRole_HierarchyViolation(t *testing.T) {
 	highRole.ID = roleID
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	roleRepo.On("GetByID", mock.Anything, roleID).Return(highRole, nil)
 
 	err := svc.AssignRole(context.Background(), serverID, targetMemberID, roleID, modID)
@@ -717,10 +700,14 @@ func TestServerService_AssignRole_HierarchyViolation(t *testing.T) {
 	roleRepo.AssertNotCalled(t, "AssignToMember")
 }
 
+// ───────────────────────────────────────────────────────────
+// List/Get Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_ListServerChats_MemberSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, _, _, memberRepo, _, chatRepo, _, _, _, _ := newTestService(t)
+	svc, _, _, memberRepo, _, chatRepo, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -733,7 +720,6 @@ func TestServerService_ListServerChats_MemberSuccess(t *testing.T) {
 	}
 
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(member, nil)
-
 	chatRepo.On("GetByServer", mock.Anything, serverID).Return(existingChats, nil)
 
 	result, err := svc.ListServerChats(context.Background(), serverID, ownerID)
@@ -749,7 +735,7 @@ func TestServerService_ListServerChats_MemberSuccess(t *testing.T) {
 func TestServerService_ListServerChats_NotMember(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -759,7 +745,6 @@ func TestServerService_ListServerChats_NotMember(t *testing.T) {
 	server.ID = serverID
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(nil, repository.ErrNotFound)
 
 	result, err := svc.ListServerChats(context.Background(), serverID, userID)
@@ -769,155 +754,75 @@ func TestServerService_ListServerChats_NotMember(t *testing.T) {
 	assert.Nil(t, result)
 }
 
-func TestServerService_CheckMessageModeration_Disabled(t *testing.T) {
+func TestServerService_GetMember_Success(t *testing.T) {
 	t.Parallel()
 
-	svc, _, configRepo, _, _, _, _, _, _, _ := newTestService(t)
+	svc, _, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	userID := uuid.New()
 
-	serverConfig := &domain.ServerConfig{
-		ServerID:          serverID,
-		ModerationEnabled: false,
-	}
+	member := newTestMember(serverID, userID)
 
-	configRepo.On("GetModerationConfig", mock.Anything, serverID).Return(&domain.ModerationConfig{}, nil)
-	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(serverConfig, nil)
+	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(member, nil)
 
-	result, err := svc.CheckMessageModeration(context.Background(), serverID, userID, nil, "Hello, world!")
+	result, err := svc.GetMember(context.Background(), serverID, userID)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.True(t, result.Allowed)
+	assert.Equal(t, userID, result.UserID)
+
+	memberRepo.AssertExpectations(t)
 }
 
-func TestServerService_CheckMessageModeration_ServiceDown(t *testing.T) {
+func TestServerService_GetMember_NotFound(t *testing.T) {
 	t.Parallel()
 
-	serverRepo := repoMocks.NewMockServerRepository(t)
-	configRepo := repoMocks.NewMockConfigRepository(t)
-	memberRepo := repoMocks.NewMockMemberRepository(t)
-	roleRepo := repoMocks.NewMockRoleRepository(t)
-	moderationRepo := repoMocks.NewMockModerationRepository(t)
-	chatRepo := repoMocks.NewMockChatRepository(t)
-	identityClient := clientMocks.NewMockIdentityClient(t)
-	chatsClient := clientMocks.NewMockChatsClient(t)
-
-	svc := service.NewServerService(
-		serverRepo,
-		configRepo,
-		memberRepo,
-		roleRepo,
-		moderationRepo,
-		chatRepo,
-		identityClient,
-		chatsClient,
-		nil,
-	)
+	svc, _, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	userID := uuid.New()
 
-	serverConfig := &domain.ServerConfig{
-		ServerID:          serverID,
-		ModerationEnabled: true,
-	}
+	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(nil, repository.ErrNotFound)
 
-	configRepo.On("GetModerationConfig", mock.Anything, serverID).Return(&domain.ModerationConfig{}, nil)
-	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(serverConfig, nil)
-
-	_, err := svc.CheckMessageModeration(context.Background(), serverID, userID, nil, "Hello, world!")
+	result, err := svc.GetMember(context.Background(), serverID, userID)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "moderation service client not initialized")
-
-	configRepo.AssertExpectations(t)
+	assert.Contains(t, err.Error(), "user is not a member")
+	assert.Nil(t, result)
 }
 
-func TestServerService_CheckMessageModeration_MessageAllowed(t *testing.T) {
+func TestServerService_GetMemberRoles_Success(t *testing.T) {
 	t.Parallel()
 
-	svc, _, configRepo, _, _, _, moderationRepo, _, _, moderationClient := newTestService(t)
+	svc, _, _, _, roleRepo, _, _, _, _ := newTestService(t)
 
-	serverID := uuid.New()
-	userID := uuid.New()
-	messageID := uuid.New()
+	memberID := uuid.New()
 
-	serverConfig := &domain.ServerConfig{
-		ServerID:          serverID,
-		ModerationEnabled: true,
+	roles := []*domain.ServerRole{
+		newTestRole(uuid.New(), "Role1", []string{"send_messages"}),
+		newTestRole(uuid.New(), "Role2", []string{"ban_members"}),
 	}
 
-	modConfig := &domain.ModerationConfig{
-		ServerID:              serverID,
-		ProfanityFilterAction: domain.ActionDelete,
-	}
+	roleRepo.On("GetMemberRoles", mock.Anything, memberID).Return(roles, nil)
 
-	modResult := &domain.ModerationResult{
-		Allowed:    true,
-		Violations: []domain.Violation{},
-	}
-
-	configRepo.On("GetModerationConfig", mock.Anything, serverID).Return(modConfig, nil)
-	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(serverConfig, nil)
-	moderationClient.On("CheckText", mock.Anything, "Hello, world!", modConfig).Return(modResult, nil)
-
-	result, err := svc.CheckMessageModeration(context.Background(), serverID, userID, &messageID, "Hello, world!")
+	result, err := svc.GetMemberRoles(context.Background(), memberID)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.True(t, result.Allowed)
+	assert.Len(t, result, 2)
+	assert.Equal(t, "Role1", result[0].Name)
 
-	moderationRepo.AssertNotCalled(t, "Create")
+	roleRepo.AssertExpectations(t)
 }
 
-func TestServerService_CheckMessageModeration_MessageBlocked(t *testing.T) {
-	t.Parallel()
-
-	svc, _, configRepo, _, _, _, moderationRepo, _, _, moderationClient := newTestService(t)
-
-	serverID := uuid.New()
-	userID := uuid.New()
-	messageID := uuid.New()
-
-	serverConfig := &domain.ServerConfig{
-		ServerID:          serverID,
-		ModerationEnabled: true,
-	}
-
-	modConfig := &domain.ModerationConfig{
-		ServerID:              serverID,
-		ProfanityFilterAction: domain.ActionDelete,
-	}
-
-	modResult := &domain.ModerationResult{
-		Allowed: false,
-		Violations: []domain.Violation{
-			{Type: domain.ViolationProfanity, Message: "profanity detected"},
-		},
-	}
-
-	configRepo.On("GetModerationConfig", mock.Anything, serverID).Return(modConfig, nil)
-	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(serverConfig, nil)
-	moderationClient.On("CheckText", mock.Anything, "bad word!", modConfig).Return(modResult, nil)
-	moderationRepo.On("Create", mock.Anything, mock.MatchedBy(func(v *domain.ModerationViolation) bool {
-		return v.ViolationType == domain.ViolationProfanity && v.ActionTaken == domain.ActionDelete
-	})).Return(nil)
-
-	result, err := svc.CheckMessageModeration(context.Background(), serverID, userID, &messageID, "bad word!")
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.False(t, result.Allowed)
-
-	moderationRepo.AssertExpectations(t)
-}
+// ───────────────────────────────────────────────────────────
+// Delete/Remove Tests
+// ───────────────────────────────────────────────────────────
 
 func TestServerService_DeleteServer_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, _, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, _, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -926,7 +831,6 @@ func TestServerService_DeleteServer_OwnerSuccess(t *testing.T) {
 	server.ID = serverID
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	serverRepo.On("SoftDelete", mock.Anything, serverID).Return(nil)
 
 	err := svc.DeleteServer(context.Background(), serverID, ownerID)
@@ -939,7 +843,7 @@ func TestServerService_DeleteServer_OwnerSuccess(t *testing.T) {
 func TestServerService_DeleteServer_NotOwner(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, _, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, _, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -961,7 +865,7 @@ func TestServerService_DeleteServer_NotOwner(t *testing.T) {
 func TestServerService_DeleteServer_ServerNotFound(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, _, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, _, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -977,7 +881,7 @@ func TestServerService_DeleteServer_ServerNotFound(t *testing.T) {
 func TestServerService_RemoveMember_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -989,11 +893,8 @@ func TestServerService_RemoveMember_OwnerSuccess(t *testing.T) {
 	targetMember := newTestMember(serverID, targetID)
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Delete", mock.Anything, targetMember.ID).Return(nil)
 
 	err := svc.RemoveMember(context.Background(), serverID, targetID, ownerID)
@@ -1007,7 +908,7 @@ func TestServerService_RemoveMember_OwnerSuccess(t *testing.T) {
 func TestServerService_RemoveMember_WithKickPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1025,12 +926,9 @@ func TestServerService_RemoveMember_WithKickPermission(t *testing.T) {
 	modRole := newTestRole(serverID, "Moderator", []string{"kick_members"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Delete", mock.Anything, targetMember.ID).Return(nil)
 
 	err := svc.RemoveMember(context.Background(), serverID, targetID, modID)
@@ -1041,7 +939,7 @@ func TestServerService_RemoveMember_WithKickPermission(t *testing.T) {
 func TestServerService_RemoveMember_CannotKickOwner(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1052,9 +950,6 @@ func TestServerService_RemoveMember_CannotKickOwner(t *testing.T) {
 	ownerMember := newTestMember(serverID, ownerID)
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
-	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
 
 	err := svc.RemoveMember(context.Background(), serverID, ownerID, ownerID)
@@ -1066,7 +961,7 @@ func TestServerService_RemoveMember_CannotKickOwner(t *testing.T) {
 func TestServerService_RemoveMember_TargetNotFound(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1076,9 +971,7 @@ func TestServerService_RemoveMember_TargetNotFound(t *testing.T) {
 	server.ID = serverID
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(nil, repository.ErrNotFound)
 
 	err := svc.RemoveMember(context.Background(), serverID, targetID, ownerID)
@@ -1087,10 +980,14 @@ func TestServerService_RemoveMember_TargetNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "user is not a member")
 }
 
+// ───────────────────────────────────────────────────────────
+// Mute/Unmute/Unban Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_MuteMember_WithPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1110,12 +1007,9 @@ func TestServerService_MuteMember_WithPermission(t *testing.T) {
 	duration := 24 * time.Hour
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Update", mock.Anything, mock.MatchedBy(func(m *domain.ServerMember) bool {
 		return m.IsMuted && m.MutedUntil != nil
 	})).Return(nil)
@@ -1128,7 +1022,7 @@ func TestServerService_MuteMember_WithPermission(t *testing.T) {
 func TestServerService_MuteMember_CannotMuteOwner(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1141,9 +1035,6 @@ func TestServerService_MuteMember_CannotMuteOwner(t *testing.T) {
 	duration := 1 * time.Hour
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
-	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(ownerMember, nil)
 
 	err := svc.MuteMember(context.Background(), serverID, ownerID, ownerID, &duration)
@@ -1155,7 +1046,7 @@ func TestServerService_MuteMember_CannotMuteOwner(t *testing.T) {
 func TestServerService_UnmuteMember_Success(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1174,12 +1065,9 @@ func TestServerService_UnmuteMember_Success(t *testing.T) {
 	modRole := newTestRole(serverID, "Moderator", []string{"mute_members"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Update", mock.Anything, mock.MatchedBy(func(m *domain.ServerMember) bool {
 		return !m.IsMuted && m.MutedUntil == nil
 	})).Return(nil)
@@ -1192,7 +1080,7 @@ func TestServerService_UnmuteMember_Success(t *testing.T) {
 func TestServerService_UnbanMember_Success(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1211,12 +1099,9 @@ func TestServerService_UnbanMember_Success(t *testing.T) {
 	modRole := newTestRole(serverID, "Moderator", []string{"ban_members"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, modID).Return(modMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, modMember.ID).Return([]*domain.ServerRole{modRole}, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, targetID).Return(targetMember, nil)
-
 	memberRepo.On("Update", mock.Anything, mock.MatchedBy(func(m *domain.ServerMember) bool {
 		return !m.IsBanned
 	})).Return(nil)
@@ -1226,10 +1111,14 @@ func TestServerService_UnbanMember_Success(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+// ───────────────────────────────────────────────────────────
+// Delete Role/Chat Tests
+// ───────────────────────────────────────────────────────────
+
 func TestServerService_DeleteRole_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1243,11 +1132,8 @@ func TestServerService_DeleteRole_OwnerSuccess(t *testing.T) {
 	role.IsDefault = false
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	roleRepo.On("GetByID", mock.Anything, roleID).Return(role, nil)
-
 	roleRepo.On("Delete", mock.Anything, roleID).Return(nil)
 
 	err := svc.DeleteRole(context.Background(), serverID, roleID, ownerID)
@@ -1258,7 +1144,7 @@ func TestServerService_DeleteRole_OwnerSuccess(t *testing.T) {
 func TestServerService_DeleteRole_CannotDeleteDefault(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, _, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1272,9 +1158,7 @@ func TestServerService_DeleteRole_CannotDeleteDefault(t *testing.T) {
 	defaultRole.IsDefault = true
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	roleRepo.On("GetByID", mock.Anything, roleID).Return(defaultRole, nil)
 
 	err := svc.DeleteRole(context.Background(), serverID, roleID, ownerID)
@@ -1288,7 +1172,7 @@ func TestServerService_DeleteRole_CannotDeleteDefault(t *testing.T) {
 func TestServerService_DeleteServerChat_OwnerSuccess(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, _, chatRepo, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, _, chatRepo, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1298,9 +1182,7 @@ func TestServerService_DeleteServerChat_OwnerSuccess(t *testing.T) {
 	server.ID = serverID
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	chatRepo.On("RemoveChat", mock.Anything, serverID, chatID).Return(nil)
 
 	err := svc.DeleteServerChat(context.Background(), serverID, chatID, ownerID)
@@ -1315,7 +1197,7 @@ func TestServerService_DeleteServerChat_OwnerSuccess(t *testing.T) {
 func TestServerService_DeleteServerChat_NoManageChannelsPermission(t *testing.T) {
 	t.Parallel()
 
-	svc, serverRepo, _, memberRepo, roleRepo, chatRepo, _, _, _, _ := newTestService(t)
+	svc, serverRepo, _, memberRepo, roleRepo, chatRepo, _, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1331,7 +1213,6 @@ func TestServerService_DeleteServerChat_NoManageChannelsPermission(t *testing.T)
 	userRole := newTestRole(serverID, "Member", []string{"send_messages"})
 
 	serverRepo.On("GetByID", mock.Anything, serverID).Return(server, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(userMember, nil)
 	roleRepo.On("GetMemberRoles", mock.Anything, userMember.ID).Return([]*domain.ServerRole{userRole}, nil)
 
@@ -1343,71 +1224,14 @@ func TestServerService_DeleteServerChat_NoManageChannelsPermission(t *testing.T)
 	chatRepo.AssertNotCalled(t, "RemoveChat")
 }
 
-func TestServerService_GetMember_Success(t *testing.T) {
-	t.Parallel()
-
-	svc, _, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
-
-	serverID := uuid.New()
-	userID := uuid.New()
-
-	member := newTestMember(serverID, userID)
-
-	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(member, nil)
-
-	result, err := svc.GetMember(context.Background(), serverID, userID)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, userID, result.UserID)
-
-	memberRepo.AssertExpectations(t)
-}
-
-func TestServerService_GetMember_NotFound(t *testing.T) {
-	t.Parallel()
-
-	svc, _, _, memberRepo, _, _, _, _, _, _ := newTestService(t)
-
-	serverID := uuid.New()
-	userID := uuid.New()
-
-	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, userID).Return(nil, repository.ErrNotFound)
-
-	result, err := svc.GetMember(context.Background(), serverID, userID)
-
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "user is not a member")
-	assert.Nil(t, result)
-}
-
-func TestServerService_GetMemberRoles_Success(t *testing.T) {
-	t.Parallel()
-
-	svc, _, _, _, roleRepo, _, _, _, _, _ := newTestService(t)
-
-	memberID := uuid.New()
-
-	roles := []*domain.ServerRole{
-		newTestRole(uuid.New(), "Role1", []string{"send_messages"}),
-		newTestRole(uuid.New(), "Role2", []string{"ban_members"}),
-	}
-
-	roleRepo.On("GetMemberRoles", mock.Anything, memberID).Return(roles, nil)
-
-	result, err := svc.GetMemberRoles(context.Background(), memberID)
-
-	assert.NoError(t, err)
-	assert.Len(t, result, 2)
-	assert.Equal(t, "Role1", result[0].Name)
-
-	roleRepo.AssertExpectations(t)
-}
+// ───────────────────────────────────────────────────────────
+// Add Member Tests
+// ───────────────────────────────────────────────────────────
 
 func TestServerService_AddMember_MaxMembersReached(t *testing.T) {
 	t.Parallel()
 
-	svc, _, configRepo, memberRepo, _, _, _, identityClient, _, _ := newTestService(t)
+	svc, _, configRepo, memberRepo, _, _, identityClient, _, _ := newTestService(t)
 
 	serverID := uuid.New()
 	ownerID := uuid.New()
@@ -1419,13 +1243,9 @@ func TestServerService_AddMember_MaxMembersReached(t *testing.T) {
 	}
 
 	identityClient.On("UserExists", mock.Anything, newUserID.String()).Return(true, nil)
-
 	memberRepo.On("GetByServerAndUser", mock.Anything, serverID, ownerID).Return(&domain.ServerMember{UserID: ownerID}, nil)
-
 	memberRepo.On("Exists", mock.Anything, serverID, newUserID).Return(false, nil)
-
 	configRepo.On("GetServerConfig", mock.Anything, serverID).Return(config, nil)
-
 	memberRepo.On("CountByServer", mock.Anything, serverID).Return(2, nil)
 
 	err := svc.AddMember(context.Background(), serverID, newUserID, ownerID)

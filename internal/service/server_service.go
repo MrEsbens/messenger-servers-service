@@ -7,6 +7,7 @@ import (
 
 	"github.com/MrEsbens/messenger-servers-service/internal/domain"
 	"github.com/MrEsbens/messenger-servers-service/internal/repository"
+	"github.com/MrEsbens/messenger-servers-service/internal/repository/redis"
 	"github.com/MrEsbens/messenger-servers-service/internal/transport/grpcclient"
 	"github.com/google/uuid"
 )
@@ -47,45 +48,39 @@ type ServerServiceInterface interface {
 	CreateServerChat(ctx context.Context, serverID uuid.UUID, name string, createdBy uuid.UUID) (*repository.ServerChat, error)
 	ListServerChats(ctx context.Context, serverID, requesterID uuid.UUID) ([]*repository.ServerChat, error)
 	DeleteServerChat(ctx context.Context, serverID, chatID, deleterID uuid.UUID) error
-
-	// Moderation
-	CheckMessageModeration(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, text string) (*domain.ModerationResult, error)
-	LogViolation(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, messageContent *string, violationType domain.ViolationType, action domain.ModerationAction) error
 }
 
 type ServerService struct {
-	serverRepo       repository.ServerRepository
-	configRepo       repository.ConfigRepository
-	memberRepo       repository.MemberRepository
-	roleRepo         repository.RoleRepository
-	moderationRepo   repository.ModerationRepository
-	chatRepo         repository.ChatRepository
-	identityClient   grpcclient.IdentityClientInterface
-	chatsClient      grpcclient.ChatsClientInterface
-	moderationClient grpcclient.ModerationClientInterface
+	serverRepo     repository.ServerRepository
+	configRepo     repository.ConfigRepository
+	memberRepo     repository.MemberRepository
+	roleRepo       repository.RoleRepository
+	chatRepo       repository.ChatRepository
+	identityClient grpcclient.IdentityClientInterface
+	chatsClient    grpcclient.ChatsClientInterface
+	cacheRepo      redis.CacheRepository
 }
 
+// NewServerService создаёт новый экземпляр сервиса.
 func NewServerService(
 	serverRepo repository.ServerRepository,
 	configRepo repository.ConfigRepository,
 	memberRepo repository.MemberRepository,
 	roleRepo repository.RoleRepository,
-	moderationRepo repository.ModerationRepository,
 	chatRepo repository.ChatRepository,
 	identityClient grpcclient.IdentityClientInterface,
 	chatsClient grpcclient.ChatsClientInterface,
-	moderationClient grpcclient.ModerationClientInterface,
+	cacheRepo redis.CacheRepository,
 ) ServerServiceInterface {
 	return &ServerService{
-		serverRepo:       serverRepo,
-		configRepo:       configRepo,
-		memberRepo:       memberRepo,
-		roleRepo:         roleRepo,
-		moderationRepo:   moderationRepo,
-		chatRepo:         chatRepo,
-		identityClient:   identityClient,
-		chatsClient:      chatsClient,
-		moderationClient: moderationClient,
+		serverRepo:     serverRepo,
+		configRepo:     configRepo,
+		memberRepo:     memberRepo,
+		roleRepo:       roleRepo,
+		chatRepo:       chatRepo,
+		identityClient: identityClient,
+		chatsClient:    chatsClient,
+		cacheRepo:      cacheRepo,
 	}
 }
 
@@ -374,7 +369,17 @@ func (s *ServerService) UpdateModerationConfig(ctx context.Context, serverID, up
 		return fmt.Errorf("invalid moderation config: %w", err)
 	}
 
-	return s.configRepo.UpdateModerationConfig(ctx, config)
+	if err := s.configRepo.UpdateModerationConfig(ctx, config); err != nil {
+		return err
+	}
+
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.InvalidateModerationConfig(ctx, serverID); err != nil {
+			return fmt.Errorf("Failed to invalidate moderation config cache: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // ───────────────────────────────────────────────────────────
@@ -857,51 +862,4 @@ func (s *ServerService) DeleteServerChat(ctx context.Context, serverID, chatID, 
 	}
 
 	return s.chatRepo.RemoveChat(ctx, serverID, chatID)
-}
-
-// ───────────────────────────────────────────────────────────
-// Moderation
-// ───────────────────────────────────────────────────────────
-
-func (s *ServerService) CheckMessageModeration(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, text string) (*domain.ModerationResult, error) {
-	config, err := s.configRepo.GetModerationConfig(ctx, serverID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get moderation config: %w", err)
-	}
-
-	serverConfig, err := s.configRepo.GetServerConfig(ctx, serverID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get server config: %w", err)
-	}
-	if !serverConfig.ModerationEnabled {
-		return &domain.ModerationResult{Allowed: true}, nil
-	}
-
-	if s.moderationClient == nil {
-		return nil, fmt.Errorf("moderation service client not initialized")
-	}
-
-	result, err := s.moderationClient.CheckText(ctx, text, config)
-	if err != nil {
-		return nil, fmt.Errorf("moderation check failed: %w", err)
-	}
-
-	if !result.Allowed {
-		for _, violation := range result.Violations {
-			action := config.GetActionForFilter(string(violation.Type))
-			if action != domain.ActionNone {
-				if logErr := s.LogViolation(ctx, serverID, userID, messageID, &text, violation.Type, action); logErr != nil {
-					fmt.Printf("⚠️ Failed to log violation: %v\n", logErr)
-				}
-			}
-		}
-		return result, nil
-	}
-
-	return result, nil
-}
-
-func (s *ServerService) LogViolation(ctx context.Context, serverID, userID uuid.UUID, messageID *uuid.UUID, messageContent *string, violationType domain.ViolationType, action domain.ModerationAction) error {
-	violation := domain.NewModerationViolation(serverID, userID, messageID, messageContent, violationType, action)
-	return s.moderationRepo.Create(ctx, violation)
 }

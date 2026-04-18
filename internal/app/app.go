@@ -1,3 +1,5 @@
+// internal/app/app.go
+
 package app
 
 import (
@@ -9,8 +11,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	redislib "github.com/redis/go-redis/v9"
+
 	"github.com/MrEsbens/messenger-servers-service/internal/config"
 	"github.com/MrEsbens/messenger-servers-service/internal/repository"
+	repo_redis "github.com/MrEsbens/messenger-servers-service/internal/repository/redis"
 	"github.com/MrEsbens/messenger-servers-service/internal/service"
 	"github.com/MrEsbens/messenger-servers-service/internal/transport/grpcclient"
 	"github.com/MrEsbens/messenger-servers-service/internal/transport/grpcserver"
@@ -20,6 +25,7 @@ import (
 type App struct {
 	cfg            *config.Config
 	db             *sql.DB
+	redisClient    *redislib.Client
 	server         *grpcserver.Server
 	serverService  service.ServerServiceInterface
 	identityClient grpcclient.IdentityClientInterface
@@ -40,12 +46,34 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	}
 	log.Println("✅ Connected to database")
 
+	var redisClient *redislib.Client
+	var cacheRepo repo_redis.CacheRepository
+
+	if cfg.Redis.URL != "" {
+		opt, err := redislib.ParseURL(cfg.Redis.URL)
+		if err != nil {
+			log.Printf("⚠️  Failed to parse Redis URL: %v", err)
+		} else {
+			redisClient = redislib.NewClient(opt)
+
+			if err := redisClient.Ping(ctx).Err(); err != nil {
+				log.Printf("⚠️  Redis connection failed: %v", err)
+			} else {
+				log.Printf("✅ Connected to Redis at %s", cfg.Redis.URL)
+			}
+
+			cacheRepo = repo_redis.NewCacheRepo(redisClient, cfg.Redis.Prefix)
+			log.Println("✅ Cache repository initialized")
+		}
+	} else {
+		log.Println("⚠️  Redis URL not configured, caching disabled")
+	}
+
 	// ─── Repositories ────────────────────────────────────────
 	serverRepo := repository.NewServerRepository(db)
 	configRepo := repository.NewConfigRepository(db)
 	memberRepo := repository.NewMemberRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
-	moderationRepo := repository.NewModerationRepository(db)
 	chatRepo := repository.NewChatRepository(db)
 	log.Println("✅ Repositories initialized")
 
@@ -75,21 +103,16 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 		}
 	}
 
-	// Moderation Client — STUB пока
-	moderationClient := grpcclient.NewStubModerationClient()
-	log.Println("✅ Using stub moderation client (all messages allowed)")
-
 	// ─── Service ─────────────────────────────────────────────
 	serverService := service.NewServerService(
 		serverRepo,
 		configRepo,
 		memberRepo,
 		roleRepo,
-		moderationRepo,
 		chatRepo,
 		identityClient,
 		chatsClient,
-		moderationClient,
+		cacheRepo,
 	)
 	log.Println("✅ Server service initialized")
 
@@ -100,6 +123,7 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 	return &App{
 		cfg:            cfg,
 		db:             db,
+		redisClient:    redisClient,
 		server:         grpcServer,
 		serverService:  serverService,
 		identityClient: identityClient,
@@ -108,13 +132,11 @@ func New(ctx context.Context, cfg *config.Config) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	// Запускаем gRPC сервер в горутине
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- a.server.Start(ctx)
 	}()
 
-	// Ждём сигнала завершения или ошибки
 	select {
 	case err := <-errCh:
 		return err
@@ -126,19 +148,22 @@ func (a *App) Run(ctx context.Context) error {
 func (a *App) Shutdown(ctx context.Context) error {
 	log.Println("🛑 Shutting down Servers Service...")
 
-	// Закрываем gRPC сервер
 	a.server.Stop()
 
-	// Закрываем внешние клиенты
+	// Закрываем Redis клиент (через алиас)
+	if a.redisClient != nil {
+		if err := a.redisClient.Close(); err != nil {
+			log.Printf("⚠️  Failed to close Redis client: %v", err)
+		}
+	}
+
 	if a.identityClient != nil {
 		_ = a.identityClient.Close()
 	}
 	if a.chatsClient != nil {
 		_ = a.chatsClient.Close()
 	}
-	// moderationClient — stub, закрывать не нужно
 
-	// Закрываем БД
 	if a.db != nil {
 		if err := a.db.Close(); err != nil {
 			return fmt.Errorf("failed to close database: %w", err)
@@ -149,7 +174,6 @@ func (a *App) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// WaitForSignal возвращает context, который отменяется по сигналу OS
 func WaitForSignal() context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
 
