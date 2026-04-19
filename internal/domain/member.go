@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var SystemModeratorID = uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
 type ServerMember struct {
 	ID         uuid.UUID
 	ServerID   uuid.UUID

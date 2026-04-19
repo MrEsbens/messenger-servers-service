@@ -482,22 +482,33 @@ func (s *ServerService) ListMembers(ctx context.Context, serverID uuid.UUID, lim
 }
 
 func (s *ServerService) BanMember(ctx context.Context, serverID, userID, bannedBy uuid.UUID) error {
-	if err := s.checkMemberAccess(ctx, serverID, bannedBy); err != nil {
-		return err
-	}
+	var server *domain.Server
+	
+	if bannedBy != domain.SystemModeratorID {
+		if err := s.checkMemberAccess(ctx, serverID, bannedBy); err != nil {
+			return err
+		}
 
-	server, err := s.serverRepo.GetByID(ctx, serverID)
-	if err != nil {
-		return err
-	}
-
-	if server.OwnerID != bannedBy {
-		hasPerm, err := s.hasPermission(ctx, serverID, bannedBy, domain.PermBanMembers)
+		var err error
+		server, err = s.serverRepo.GetByID(ctx, serverID)
 		if err != nil {
 			return err
 		}
-		if !hasPerm {
-			return domain.ErrPermissionDenied
+
+		if server.OwnerID != bannedBy {
+			hasPerm, err := s.hasPermission(ctx, serverID, bannedBy, domain.PermBanMembers)
+			if err != nil {
+				return err
+			}
+			if !hasPerm {
+				return domain.ErrPermissionDenied
+			}
+		}
+	} else {
+		var err error
+		server, err = s.serverRepo.GetByID(ctx, serverID)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -547,22 +558,33 @@ func (s *ServerService) UnbanMember(ctx context.Context, serverID, userID, unban
 }
 
 func (s *ServerService) MuteMember(ctx context.Context, serverID, userID, mutedBy uuid.UUID, duration *time.Duration) error {
-	if err := s.checkMemberAccess(ctx, serverID, mutedBy); err != nil {
-		return err
-	}
+	var server *domain.Server
+	
+	if mutedBy != domain.SystemModeratorID {
+		if err := s.checkMemberAccess(ctx, serverID, mutedBy); err != nil {
+			return err
+		}
 
-	server, err := s.serverRepo.GetByID(ctx, serverID)
-	if err != nil {
-		return err
-	}
-
-	if server.OwnerID != mutedBy {
-		hasPerm, err := s.hasPermission(ctx, serverID, mutedBy, domain.PermMuteMembers)
+		var err error
+		server, err = s.serverRepo.GetByID(ctx, serverID)
 		if err != nil {
 			return err
 		}
-		if !hasPerm {
-			return domain.ErrPermissionDenied
+
+		if server.OwnerID != mutedBy {
+			hasPerm, err := s.hasPermission(ctx, serverID, mutedBy, domain.PermMuteMembers)
+			if err != nil {
+				return err
+			}
+			if !hasPerm {
+				return domain.ErrPermissionDenied
+			}
+		}
+	} else {
+		var err error
+		server, err = s.serverRepo.GetByID(ctx, serverID)
+		if err != nil {
+			return err
 		}
 	}
 
