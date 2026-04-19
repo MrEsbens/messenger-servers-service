@@ -46,23 +46,6 @@ CREATE TABLE IF NOT EXISTS moderation_configs (
 
 CREATE INDEX idx_moderation_configs_server ON moderation_configs(server_id);
 
-CREATE TABLE IF NOT EXISTS moderation_violations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    server_id UUID NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL,
-    message_id UUID,
-    message_content TEXT,
-    
-    violation_type VARCHAR(50) NOT NULL,
-    action_taken VARCHAR(20),
-    
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_violations_server ON moderation_violations(server_id);
-CREATE INDEX idx_violations_user ON moderation_violations(user_id);
-CREATE INDEX idx_violations_created ON moderation_violations(created_at);
-
 CREATE TABLE IF NOT EXISTS server_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     server_id UUID NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
